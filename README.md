@@ -22,7 +22,7 @@ The idea is simple: build an app where people can **sell their health data safel
 
 
 ## 📂 Repo structure
-
+```
 │── README.md # This file
 │── docs/
 │ ├── DESIGN_QA.md # Questions + answers, TBDs
@@ -31,6 +31,6 @@ The idea is simple: build an app where people can **sell their health data safel
 │ ├── STATUS.md  # Current status: where we are now,last discussion notes
 │ ├── SECURITY.md # Storage/encryption/Web3 thoughts
 │ └── ARCHITECTURE.md # Big-picture design (users, buyers, admins)
-
+```
 ---
 

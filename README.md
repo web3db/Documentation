@@ -28,6 +28,7 @@ The idea is simple: build an app where people can **sell their health data safel
 │ ├── DESIGN_QA.md # Questions + answers, TBDs
 │ ├── ROADMAP.md # Multi-phase roadmap
 │ ├── PRIVACY.md # Privacy and compliance notes
+│ ├── SRS.md  # Software Requirements Specification – detailed functional & non-functional requirements, with priorities and status
 │ ├── STATUS.md  # Current status: where we are now,last discussion notes
 │ ├── SECURITY.md # Storage/encryption/Web3 thoughts
 │ └── ARCHITECTURE.md # Big-picture design (users, buyers, admins)

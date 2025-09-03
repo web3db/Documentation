@@ -6,21 +6,22 @@ The goal is to capture everything in one place as we move from **planning → de
 ---
 
 ## 📌 Notes
-- ❓ TBD (needs team discussion)  
-- ⚠️ Concern (watch out / research needed)  
+- Planned/Answered = decision made or agreed for Phase 1  
+- TBD = still needs discussion or will be addressed in later phases  
+- Concern = watch closely or potential risk   
 - 👤 Roles: **User** (sells data), **Buyer** (purchases data), **Admin/Platform** (manages system)  
 
 ---
 
 ## 1. Core Vision and Use Case
 **Q:** What is the main focus of the app right now?  
-**A:** Start with **health data only** (Apple HealthKit, Google Health Connect).  
+**A:** Phase 1 will focus on health data only (Apple HealthKit and Google Health Connect).  
 
 **Q:** Will the app expand beyond health?  
-**A:** Yes → manual data entry next, then expand into a larger marketplace for other types of data.  
+**A:** Yes. Phase 2 will add manual data entry, and later phases will expand into a larger marketplace.  
 
 **Q:** What is the MVP value?  
-**A:** Verified health data from real users → buyers get legitimate data, users get paid.  
+**A:** A healthcare data marketplace where users can consent and share their health data, buyers can post requirements, and transactions can happen with minimal friction.  
 
 ---
 
@@ -30,11 +31,13 @@ The goal is to capture everything in one place as we move from **planning → de
        Phase 2: manual entry.  
        Phase 3+: explore other sources.  
 
-**Q:** How do we ensure data is trustworthy?  
-**A:** Verification required for both users and buyers. (**TBD**) Need to define “verification” (e.g., ID check, health account link).  
+**Q:** What data will we collect in Phase 1?  
+**A:** Basic profile: sex, age (via birth year), height, weight → BMI.  
+Basic health data: fitness, vitals, activity, lifestyle.  
 
-**Q:** What types of health data?  
-**A:** Basic fitness, vitals, activity, lifestyle.
+
+**Q:** How do we ensure data is trustworthy?  
+**A:** For Phase 1, trust comes from device-based health data. Buyer and user verification is deferred. Verification system will be added in Phase 3.  
 
 ---
 
@@ -42,36 +45,38 @@ The goal is to capture everything in one place as we move from **planning → de
 **Q:** Who are the buyers?  
 **A:** Research labs, insurers, hospitals, universities, health startups.  
 
-**Q:** How do buyers sign up?  
-**A:** Likely similar to users, but with added verification steps (certificates, institutional checks). (**TBD**).  
+**Q:** How do buyers join?  
+**A:** Phase 1: simple signup with account creation.  
+Phase 3: add verification (docs, certificates, KYC). 
 
-**Q:** What features should the buyer UI have?  
-**A:** Not finalized. Ideas include: search filters, API access, dataset previews, and bulk purchases. (**TBD**).  
+**Q:** What features will buyers see in Phase 1?  
+**A:** Ability to post data requirements, review user signups, and approve offers.  
  
 
 ---
 
 ## 4. Money and Payout
 **Q:** How will the platform make money?  
-**A:** Commission-based model (Uber-like markup).  
-       Other options to explore: subscriptions, premium tiers, or buyer-side fees. (**TBD**).  
+**A:** Currenlty OpenAI type model, no monitory gain until app reaches a certain scale
 
 **Q:** How do users get paid?  
 **A:** Not finalized. Could include PayPal, bank transfer, or crypto. (**TBD**)
 
-**Q:** Who sets pricing?  
-**A:** Not yet discussed (**TBD**)
+**Q:** Who sets pricing markup and how?  
+**A:** Not Finalized
 
-**Q:** What is commission?  
-**A:** Not yet discussed (**TBD**)
 
 ---
 
 ## 5. Privacy and Compliance
 **Q:** How is user consent handled?  
-**A:** Terms and conditions flow before data sharing. (**TBD**) Needs detail.  
+**A:**  Consent is required before any data sharing. Users will accept terms and conditions in-app.  
+ 
+ **Q:** Which regulations to follow?  
+**A:**   Phase 3
 
-
+**Q:** Will users be able to revoke access?  
+**A:** No. Revocation will be a Phase 3+ feature. 
 
 **Current Concerns:**  
 - Proper verification  
@@ -83,7 +88,8 @@ The goal is to capture everything in one place as we move from **planning → de
 
 ## 6. Security and Storage
 **Q:** Where is data stored?  
-**A:** Initial idea: store locally on device. (**TBD**) Need to test feasibility.  
+**A:** Phase 1: data goes to web3 like before.  
+Shared data will be encrypted and stored on Web3 for delivery to buyers.   
 
 **Q:** Where does web3 come into picture?  
 **A:** (**TBD**)  
@@ -91,39 +97,58 @@ The goal is to capture everything in one place as we move from **planning → de
 ---
 
 ## 7. Platform and Admin
-**Q:** What does the platform do?  
-**A:** Take commission, manage trust, and provide transparency.  (**TBD**)
 
-**Q:** How is trust maintained?  
-**A:** Verification system TBD.  
-   Needs audit logs and transparency dashboards.  
+
+**Q:** What does the platform manage in Phase 1?  
+**A:** Managing consent flows, handling buyer postings, and tracking basic sharing records.  
+
+**Q:** How will trust be maintained?  
+**A:** In Phase 1, trust comes from system flow (users consent → buyers post → users accept). Verification and audit trails will come in Phase 3.  
 
 ---
 
 ## 8. User Experience
 **Q:** What is the Phase 1 user flow?  
-**A:** Connect device → consent → share data → see earnings.  
+**A:** Login → fill profile (sex, age, BMI) → consent → see marketplace → agree to buyer requirement → buyer approves → data shared.  
 
-**Q:** Will there be dashboards for users?  
-**A:** (**TBD**) Needs design. Should show earnings, data shared, and buyer activity.  
+**Q:** What features will the user app include in Phase 1?  
+**A:** Marketplace view, sharing page, settings, gamification (credits, badges).  
 
-**Q:** Any tracking features or any data visulzatons?  
-**A:** (**TBD**) 
+**Q:** Will there be dashboards?  
+**A:** Phase 1: basic dashboard with earnings and shared data summary.  
 
 ---
 
 ## 9. Growth
 **Q:** How do we get buyers?  
 **A:** (**TBD**)
-  
 
-## 10. Design and Platforms
-**Q:** Which platforms will this app be built on?  
-**A:** Targeting **Android and iOS** first.  Static web ui for attracting users. Consider Web UI for buyers/admins to improve presence and trust.  (**TBD**)
-
-**Q:** How should the platform look and feel?  
-**A:** Showcase the platform as data marketplace 
+**Q:** How will users be attracted?  
+**A:** Referral bonuses, early adopter credits, and a professional landing page with app store links.  
 
 
 ---
 
+
+## 10. Design and Platforms
+**Q:** How should the platform look and feel?  
+**A:** Showcase the platform as data marketplace 
+
+**Q:** Which platforms are we targeting in Phase 1?  
+**A:** iOS and Android via React Native.  
+
+**Q:** Will there be a web presence?  
+**A:** Yes. A simple landing page will link to app stores. Buyer/Admin dashboard will come in Phase 3.  
+
+**Q:** What is the design priority?  
+**A:** Trust-first design with healthcare/fintech look: clean, simple, and professional.  
+
+---
+
+
+## 11. Gamification
+**Q:** What gamification features are included in Phase 1?  
+**A:** Credits and badges.  
+
+**Q:** What about advanced gamification?  
+**A:** Streaks, multipliers, and reputation scores may be added in later phases.  

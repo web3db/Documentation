@@ -8,41 +8,78 @@ The goal is breaking project into phases so we know what is in scope now and wha
 
 ## 📌 Notes
 -  Planned / Answered  
-- ❓ = TBD (needs more discussion)  
-- ⚠️ = Concern / Risk  
+-   TBD (needs more discussion)  
+-   Concern / Risk  
+- 🔐 = Requirement locked
+
 
 ---
 
-##  Phase 1 – Health Device Data (MVP)
-**Goal:** Build the first version of the app focused on health data.  
-
--  Collect data from **Apple HealthKit (iOS)** and **Google Health Connect (Android)**  
-- Plan for **dashboards**
-- User flow: connect → consent → share data → see earnings  
-- Platform revenue model: (**TBD**)
-- Basic roles: User, Buyer, Admin   
-- (**TBD**)Storage: test feasibility of local storage  
-- (**Concern**) Privacy, encryption, and anonymity   
+## Notes
+- Planned / Answered  
+- TBD = needs more discussion  
+- Concern = watch closely or risk  
 
 ---
 
-## Phase 2 – Manual Data Entry
-**Goal:** Let users add their own health info, not just from devices.  
+## Phase 1 – MVP: Health Data Marketplace   🔐
+Goal: Deliver the minimum viable product with a working healthcare data marketplace.  
 
--   Support **manual input** (e.g., symptoms, lifestyle, habits)  
-- (**TBD**)Define which data types are allowed and how to validate them  
-- (**TBD**) Decide how to keep manually entered data trustworthy  
-- (**Concerns**) Higher risk of personal details being shared → needs clear privacy flow  
+- User login and profile setup  
+  - Collect sex, age (birth year), height, weight → BMI  
+- Consent flow → users must give permission before sharing data  
+- Marketplace view → users see available buyer requests  
+- Sharing page → users can agree to buyer requirements  
+- Settings page → basic user account controls  
+- Buyers can post requirements for data  
+- Buyers can approve user offers  
+- Uber-style flow: once users consent, they don’t re-enter details repeatedly  
+- Add light gamification (credits, badges)  
+- Excludes advanced features like revocation, tokenization, or buyer verification
+- Storage:
+  - Web3 storage is the **primary model** (Already previous).    
+  - Local storage feasibility will be tested as a fallback, using secure device storage.  
+- Excludes advanced features like revocation, tokenization, or buyer verification    
 
 ---
 
-## 🔮 Phase 2+ – Expansion (**TBD**)
-**Goal:** Grow beyond health into a larger data marketplace.  
+## Phase 2 – Extended Sharing and Manual Data (**TBD**)
+Goal: Add more flexibility and data entry options.  
 
-- Add new data sources   
-- AI integration   
+-  Let users add their own health info, not just from devices.  
+-  Support **manual input** (e.g., symptoms, lifestyle, habits)  
+- Define exact fields allowed for manual entry  
+- Add validation for manual data  
+- Introduce time-based tokens for shared data  
+- Improve gamification (streaks, multipliers, rewards)  
+- Privacy risk increases with manual entry, must review consent model  
+- Buyers get access through **time-limited signed links**. 
 
 ---
 
+## Phase 3 – Buyer Dashboard and Verification
+Goal: Provide a professional interface and improve trust.  
 
+- Launch web dashboard for buyers and admins  
+- Buyer verification system (certificates, documents, KYC)  
+- Buyer-side tools: search, filters, dataset previews, API access  
+- Web presence for credibility (landing page, trust messaging)  
+- Without verification, higher risk of misuse of sensitive data  
+
+---
+
+## Phase 4+ – Expansion and Advanced Features
+Goal: Scale and expand beyond health data.  
+
+- Explore advanced monetization (subscriptions, premium tiers, auctions)  
+- Add revocation and traceability features  
+- Legal and ethical complexity grows as scope expands  
+
+---
+
+## Parallel Workstreams (Across All Phases)
+- Privacy and Compliance → Confirm Privacy related configurations  
+- Security → End-to-end encryption, storage feasibility (local, cloud, Web3)  
+- Branding and Design → Trust-first look, healthcare/fintech style  
+- Growth → Early buyer recruitment, user onboarding strategies  
 

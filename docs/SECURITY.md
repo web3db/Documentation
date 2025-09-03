@@ -6,41 +6,55 @@ The focus is on protecting user data, choosing the right storage model, and ensu
 ---
 
 ## 📌 Notes
-- ❓ = TBD (needs more discussion)  
-- ⚠️ = Concern / Risk  
+-  TBD (needs more discussion)  
+-  Concern / Risk  
 
 ---
 
-## ✅ Early Ideas
-- Initial thought: store data **locally on device** (**TBD**).   
+## Phase 1 Approach
+- Primary model: **Web3 storage** for shared data (used like before).  
+- Users give consent → data package created → encrypted and uploaded to Web3.  
+- Buyers receive time-limited access links to the encrypted bundle.  
+- Profile information (age, sex, height, weight → BMI) stored securely with the platform.  
+- Local storage feasibility will be tested, but not the main path in Phase 1.  
 
 ---
 
-## ❓ Open Questions
-- Should we use **local-only storage** in Phase 1, or sync with Web3 or store in database?
-- Should users have a **private key / wallet style ownership** if we go Web3?  
-- How to log access for **audit trails** without breaking privacy?  
+## Web3 Storage
+- Data shared only after explicit user consent.  
+- Each data bundle encrypted before upload.  
+- Bundle has a unique identifier or hash to guarantee integrity.  
+- Buyers get access through **time-limited signed links**.  
+- Future additions may include revocation and traceability of buyer access.  
 
 ---
 
-## ⚠️ Concerns
-- If data leaves device → must be **end-to-end encrypted + anonymized**.  
-- Local storage may limit buyer access if users switch devices.  
-- Cloud storage adds convenience but increases risk of breach.  
-- Web3 storage is promising but adds complexity and costs.  
-
----
-
-## Identity amd Authentication
-
-- We need a secure, low-friction way to sign up, sign in, and verify roles (User, Buyer, Admin). 
-
-- Change current metamask login
+## Local Storage (Feasibility Work)
+- Investigate storing raw health data locally until sale.  
+- If used:
+  - Secure device storage (Keychain on iOS, Keystore on Android).  
+  - Data wiped on logout or account deletion.  
+  - Still requires packaging and encryption before any transfer.  
 
 ---
 
 
+## Consent and Access
+- Data leaves the device only after explicit consent. Phase 3 
+- No revocation or token-based sharing in Phase 1.  
+- Buyers receive access once approved and cannot be blocked afterward in this phase.  Phase 3
 
-###  Open Questions
-- Which provider (Clerk/Auth0/DIY)?
-- Any restrictions on the user sign-up
+---
+
+## Risks
+- Web3 adds operational complexity (pinning, gateways, performance).  
+- Buyer misuse (reselling or sharing) not fully preventable in Phase 1.  
+- Local-only storage may reduce usability (cross-device sync, buyer retrieval).  
+
+---
+
+## Next phases
+- Build and test Web3 storage integration for encrypted bundles.  
+- Run feasibility test on local storage option.  
+- Finalize encryption libraries and key handling.  
+- Define minimal audit logging for consent and data sharing.  

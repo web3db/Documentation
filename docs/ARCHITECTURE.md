@@ -18,94 +18,80 @@ This file shows how the system is designed and what is used: clients, services, 
 
 ---
 
-##  Client Platforms (Phase Plan)
-- **Mobile:** iOS (HealthKit) and Android (Health Connect) – Phase 1
-- **Web (Buyer/Admin dashboard):** planned for Phase 2+ to increase trust/credibility
+## Client Platforms (Phase Plan)
 
----
+- **Mobile App (React Native, bare):**  
+  - For **users** (data sellers).  
+  - Integrates with Apple HealthKit (iOS) and Google Health Connect (Android).  
+  - Features: login, consent, data assets, marketplace browsing, sharing, earnings/gamification.  
 
-## Identity and Auth Flow (High Level) 
-- **Standard:** OIDC/OAuth 2.0
-- **Provider:** Clerk / Auth0  / DIY 
-- **Sessions:**
-  - Web: secure, HTTP-only cookies
-  - Mobile: secure storage; short-lived access + refresh tokens
-- **RBAC:** roles mapped in ID token / app DB
-
-
-##  Data Flow (Phase 1) (**TBD**)
-1. Device (HealthKit / Health Connect) → App pulls data locally with user consent.
-2. User chooses what to share
-3. **Local-first** storage 
----
-
-##  Open Questions
-- Which auth provider do we choose (Clerk/Auth0/DIY)?
-- How deep should Buyer verification go (certificates, accreditation)?
-
----
-
-## Frontend
-
-### Phase 1 – Mobile first (health data)
-- **iOS**: native HealthKit bridge (read what we need).
-- **Android**: Health Connect bridge (same idea).
-- **Web**: Show the redirect to APP with the intiial  **basic landing page design** with necessary info.
-- **App layer**: React Native (Expo or bare RN), TypeScript, state via Zustand/Redux. (**TBD**)
-- **Data permissions**: clear “on/off” toggles per data type.
-- **Offline**: local cache (SQLite/Watermelon/Realm), sync only when user approves a sale. (**TBD**)
-
-### Phase 2 – Manual entry (**TBD**)
-- Add simple forms (symptoms, habits, lifestyle) with schema validation (zod/yup).
-
-### Phase 3 – Web dashboard
-- **Web**: Platoform dependent (**TBD**).
-- Features: dataset search, filters, previews, invoices, audit views, role-based screens.
-
----
-
-## Backend (services we need)
-
-- **API Gateway**: rate limiting, schema validation, request logging.(**TBD**)
-- **Core API**: (**TBD**)
-- **Payments and Payouts**: (**TBD**)
-- **Notifications**: email, push. (**TBD**)
-- **Policy/Audit**: (**TBD**)
-
-> We can start with what we already have pyton + fastAPI + rabbitMQ.
+- **Web App (React):**  
+  - For **buyers and admins**.  
+  - Features: buyer sign-in, posting requirements, approving users, viewing shared datasets, admin moderation.  
+  - Basic landing page for branding and redirect to mobile app.  
 
 ---
 
 
-## Deploy, Scale, Observe
+## Identity and Auth Flow
 
-- **Containerization** : Docker/Docker Compose for local dev.
-- **CI/CD**: GitHub Actions → build, test, lint, type-check, container scan, deploy.
-- **Secrets**: SSM/Secrets Manager/Vault; no secrets in env files or repos. (**TBD**)
-- **Observability**: (**TBD**)
-  - Logs: structured JSON to OpenSearch/ELK.
-  - Metrics: ELK
-  - Traces: OpenTelemetry.
-  - Alerts: PagerDuty/Slack.
-
-**Scaling notes**
-(**TBD**)
--  Docker
--  RabbitMQ/Kafka
+- **Provider:** Clerk.  
+- **Method:** OIDC/OAuth 2.0.  
+- **Sessions:**  
+  - Mobile: secure storage (Keychain/Keystore) for short-lived access + refresh tokens.  
+  - Web: secure cookies with httpOnly flag.  
+- **RBAC:** roles mapped as claims (User, Buyer, Admin).  
 
 ---
 
-##  API Design
+## Data Flow (Phase 1)
 
-- REST (JSON) to start; versioned (`/v1`). (**TBD**)
-
-
-##  UX/Design quick notes
-
-- Marketplace design
-- Consent screens: plain language, granular toggles, preview of what leaves device.
-- Seller dashboard: earnings, history, who bought what.
-- Buyer dashboard: filters, dataset preview (safe, synthetic sample), clear license terms.
+1. User installs mobile app.  
+2. App connects to HealthKit/Health Connect with consent.  
+3. User views available data assets.  
+4. User opts in to a buyer posting (through consent flow).  
+5. App prepares the data package locally.  
+6. Data storage/sharing handled by Web3 team (out of scope here).  
 
 ---
+
+## Frontend Plan
+
+### Mobile (Phase 1)
+- Framework: React Native (bare).  
+- Language: TypeScript.  
+- Navigation: React Navigation.  
+- State: Zustand for non-sensitive UI state; secure storage for tokens.  
+- Screens:  
+  - Login / Register  
+  - Consent flow  
+  - Data assets (view connected health data)  
+  - Marketplace (browse buyer postings)  
+  - Sharing (confirm participation)  
+  - Earnings & badges  
+  - Settings  
+
+### Web (Phase 1+)
+- Framework: React.  
+- Language: TypeScript.  
+- State: Redux for non-sensitive UI state  
+- Screens:  
+  - Landing page with app information + app store links  
+  - Buyer login and dashboard (postings, approvals)  
+  - Admin dashboard (user/buyer moderation, basic reporting)  
+
+---
+
+## UX/Design Notes
+
+- **Branding:** trust-focused, professional, university affiliation emphasized.  
+- **Consent screens:** plain language, clear toggles for data types, preview before share.  
+- **User app:** focus on simplicity and showing earnings clearly.  
+- **Buyer app (web):** simple dashboard with filters, postings, and approvals.  
+
+---
+
+## Open Questions
+- Exact buyer and user verification process (to be defined later).    
+- How to structure reporting back from researchers to users (future).  
 

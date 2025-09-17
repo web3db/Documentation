@@ -248,6 +248,16 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 
 ---
 
+## MST_SourcePolicy — 
+
+| SourcePolicyId | PolicyCode       | Description                                 | PolicyJson                                                                                         | IsActive | IsModified |
+|---:|---|---|---|:--:|:--:|
+| 1 | default            | No explicit preference; accept any source            | {"order":["any"]}                                                                                  | true | false |
+| 2 | preferWatch        | Prefer smartwatch data; fall back to phone/app       | {"preferVendorTypes":["watch"],"fallbackVendorTypes":["phone","app"]}                              | true | false |
+| 3 | preferPhone        | Prefer phone sensor data; fall back to watch/app     | {"preferVendorTypes":["phone"],"fallbackVendorTypes":["watch","app"]}                              | true | false |
+| 4 | preferFirstParty   | Prefer first-party health apps for each platform     | {"preferApps":["com.apple.health","com.google.android.apps.healthdata","com.fitbit.FitbitMobile"]} | true | false |
+| 5 | dedupeWindow5m     | Merge overlapping/near-duplicate intervals < 5 mins  | {"dedupeWindowSeconds":300,"mergeOverlaps":true}                                                   | true | false |
+
 
 
 

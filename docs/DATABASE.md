@@ -6,7 +6,7 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 
 ## MST_User
 
-| UserId | ClerkId      | Email               | FirstName | LastName | BirthYear | DateOfBirth | GenderId | SexId | Height | HeightUnitId | Weight | WeightUnitId | MeasurementSystemId | RoleId |
+| UserId | ClerkId      | Email               | FirstName | LastName | BirthYear | DateOfBirth | RaceId | SexId | Height | HeightUnitId | Weight | WeightUnitId | MeasurementSystemId | RoleId |
 |---:|---|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1001 | user_01_abc | user1@example.com | John      | Doe      | 1994 | 1994-05-12  | 1 | 1 | 168.0 | 2 | 62.0  | 4 | 1 | 1 |
 | 1002 | user_02_def | user2@example.com | Jane      | Smith    | 1988 | 1988-11-03  | 2 | 2 | 180.0 | 2 | 78.5  | 4 | 1 | 2 |
@@ -19,15 +19,15 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 
 ---
 
-## MST_Gender
+## MST_Race
 
-| GenderId | GenderCode     | Description              |
+| RaceId | RaceCode     | Description              |
 |---:|---|---|
-| 1 | male          | Man/male (self-identified) |
-| 2 | female        | Woman/female (self-identified) |
-| 3 | nonbinary     | Non-binary |
-| 4 | preferNotSay  | Prefer not to say |
-| 5 | unknown       | Not specified |
+| 1 | asian          | Asian |
+| 2 | black or african american        | Black or African American |
+| 3 | hispanic     | Hispanic |
+| 4 | white       | White |
+| 5 | preferNotSay  | Prefer not to say |
 
 ---
 
@@ -248,7 +248,7 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 
 ---
 
-## MST_SourcePolicy — 
+## MST_SourcePolicy 
 
 | SourcePolicyId | PolicyCode       | Description                                 | PolicyJson                                                                                         | IsActive | IsModified |
 |---:|---|---|---|:--:|:--:|
@@ -485,4 +485,705 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 | 76002 | 2025-09-13T09:00:05Z | 2001 | 2 | application | 70002 | ok | — | approved by buyer |
 | 76003 | 2025-09-13T09:15:01Z | 2001 | 3 | dataGrant | 72001 | ok | — | activation window set |
 | 76004 | 2025-09-16T10:00:01Z | 2001 | 4 | viewSession | 73001 | ok | — | session start |
-| 76005 | 2025-09-16T11:00:05Z | 2001 | 5 | viewSession | 73004 | error | POLICY | blocked: grant not active |
+| 76005 | 2025-09-16T11:00:05Z | 2001 | 5 | viewSession | 73004 | 
+error | POLICY | blocked: grant not active |
+
+
+
+
+
+## Table Glossary
+
+
+## Master tables
+
+| Table                      | What it stores / Why it exists                                                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MST\_User**              | Canonical user profile and demographics (auth linkage, DoB/BirthYear, height/weight + units, measurement system, role). Source of truth for a person in the system. |
+| **MST\_Race**              | Enumerated list of race codes/labels for self-reported demographics referenced by `MST_User`.                                                                       |
+| **MST\_Role**              | RBAC roles (`user`, `buyer`, `admin`) assigned to users for authorization.                                                                                          |
+| **MST\_MeasurementSystem** | Enumeration of measurement systems (metric, imperial, etc.) to interpret height/weight and other measurements.                                                      |
+| **MST\_Sex**               | Enumerated sex-at-birth values referenced by `MST_User`.                                                                                                            |
+| **MST\_Platform**          | Data platforms (Apple HealthKit, Android Health Connect, Fitbit, Manual, etc.) used to tag provenance of records.                                                   |
+| **MST\_Metric**            | Catalog of health metrics (steps, heartRate, distance, etc.) with default unit, value-kind, cumulative flag. Normalizes metric taxonomy across platforms.           |
+| **MST\_Unit**              | Catalog of measurement units (count, meter, kcal, bpm, minute, …) with UCUM codes; referenced by metrics/observations/rollups.                                      |
+| **MST\_VendorType**        | Device/app category taxonomy (phone, watch, band, scale, app) used in vendor provenance.                                                                            |
+| **MST\_ValueKind**         | How a metric’s value should be interpreted (`quantity`, `sample`, `interval`, `category`, `boolean`). Drives validation/aggregation.                                |
+| **MST\_SyncScope**         | Enumerates sync “domains” (observations, hourly rollups, daily rollups, vendor records, etc.) for checkpoints.                                                      |
+| **MST\_SyncStatus**        | Standard set of sync states (`idle`, `inProgress`, `success`, `failed`, `partial`) used by checkpoints.                                                             |
+| **MST\_PostingStatus**     | Lifecycle states for buyer postings (`draft`, `open`, `paused`, `closed`, `archived`).                                                                              |
+| **MST\_ApplicationStatus** | Lifecycle states for applications (`draft`, `submitted`, `underReview`, `approved`, `rejected`, …).                                                                 |
+| **MST\_GrantStatus**       | Data grant states (`pendingActivation`, `active`, `expired`, `revoked`, `fulfilled`).                                                                               |
+| **MST\_ViewSessionStatus** | Viewer session states (`active`, `expired`, `revoked`, `blocked`, `idle`).                                                                                          |
+| **MST\_RollUpPeriod**      | Fixed bucket periods for aggregation (`hour`, `day`, `week`, `month`, `quarter`).                                                                                   |
+| **MST\_SourceApp**         | Known source apps per platform with bundle/package IDs (“com.apple.health”, etc.). Supports provenance and source preferences.                                      |
+| **MST\_SourcePolicy**      | JSON-configured source selection/dedup policies (prefer watch vs phone, dedupe windows). Stored once and referenced by rollups.                                     |
+| **MST\_ViewPolicy**        | Viewing limits (TTL, idle timeout, page/session row caps, export flag) applied to buyer data-view sessions.                                                         |
+| **MST\_ConsentVersion**    | Versioned consent documents/labels and effective dates. Used to stamp applications/grants with exact consent text.                                                  |
+| **MST\_DecisionReason**    | Coded reasons for application decisions (eligibility failed, quota full, duplicate, etc.).                                                                          |
+| **MST\_ViewEventCode**     | Event codes used when logging actions within a view session (start, page, sort, filter, end…).                                                                      |
+| **MST\_RollupWindow**      | Predefined sliding windows (`last24h`, `last7d`, `last30d`, …) referenced by window-level rollups.                                                                  |
+| **MST\_DateWindowPolicy**  | How postings define their data window (absolute from/to dates vs relative last N days).                                                                             |
+| **MST\_AccessEventCode**   | High-level audit event codes across lifecycle (app submitted/approved, grant activated, session started, blocked, etc.).                                            |
+
+## Transaction Table
+
+| Table                       | What it stores / Why it exists                                                                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **TRN\_VendorRecord**       | Per-user, per-device/app provenance record (platform, device model, OS/app version, bundle/package, metadata). Links raw data to its origin.         |
+| **TRN\_Observation**        | Raw health data rows (metric, unit, start/end, value) ingested from HealthKit/Health Connect, with vendor provenance. Source of truth for analytics. |
+| **TRN\_UserSyncCheckpoint** | Per-user/per-platform/per-scope (optionally per-metric) markers: last sync times, vendor cursors, status, error info. Powers 3-hour freshness logic. |
+| **TRN\_RollupBucket**       | Aggregated values per fixed period bucket (e.g., hourly/daily totals/min/max/avg/sampleCount) for fast dashboards and charts.                        |
+| **TRN\_RollUpWindow**       | Aggregated values over predefined sliding windows (e.g., last7d/30d/90d) with the policy/version used to compute them.                               |
+| **TRN\_Posting**            | Buyer “job/study” post: title/description, status, apply window, participant caps, consent version, view policy, and date window rules.              |
+| **TRN\_PostingMetric**      | Child list of metrics/units a posting requests, including minimum granularity and whether each metric is required.                                   |
+| **TRN\_Application**        | A user’s application to a posting: status timeline, decision info, and profile/coverage snapshots at submission time.                                |
+| **TRN\_ConsentGrant**       | Record of user consent tied to an application: given/revoked timestamps, validity dates, scope hash, effective state.                                |
+| **TRN\_DataGrant**          | The enforceable permission for a buyer to view a user’s data: frozen metrics/units, frozen date window, validity, usage quota, activation state.     |
+| **TRN\_ViewSession**        | An issued, time-bound viewing session under a grant: policy applied, token hash, expiry/idle tracking, usage counters, client info.                  |
+| **TRN\_ViewEvent**          | Fine-grained activity within a view session (start/page/sort/filter/end) with metadata for auditing/analytics.                                       |
+| **TRN\_VisibilityFlag**     | Cached/computed “is this grant currently accessible?” decision with reason (ok, pendingActivation, expired, revoked).                                |
+| **TRN\_AccessLog**          | System-wide audit log of key lifecycle/access events (who/when/what, result/error, target object, client info).                                      |
+
+
+
+
+## Field Glossary — Web3 Health
+
+## Shared Audit Fields (used on most masters)
+
+-  IsActive — Row enabled/disabled (soft state for delete).
+
+-  IsModified — True if manually edited after creation.
+
+-  CreatedBy / CreatedOn — Who/when the row was created.
+
+-  ModifiedBy / ModifiedOn — Who/when the row was last updated.
+
+## MST_User
+
+MST_User 
+
+- UserId — Primary key (auto incremental).
+
+- ClerkId — External id from Clerk auth.
+
+- Email — Login email (unique per active user).
+
+- FirstName / LastName — User names.
+
+- BirthYear — Four-digit birth year (fallback for age).
+
+- DateOfBirth — Full DoB (YYYY-MM-DD).
+
+- RaceId — FK → MST_Race.RaceId (self-reported race).
+
+- SexId — FK → MST_Sex.SexId (sex assigned at birth).
+
+- HeightNum — Height numeric value.
+
+- HeightUnitId — FK → MST_Unit.UnitId (e.g., cm/in).
+
+- WeightNum — Weight numeric value.
+
+- WeightUnitId — FK → MST_Unit.UnitId (e.g., kg/lb).
+
+- MeasurementSystemId — FK → MST_MeasurementSystem.MeasurementSystemId (metric/imperial).
+
+- IsActive / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_Race
+
+- RaceId — Primary key.
+
+- RaceCode — Stable code (e.g., asian, black, white, mixed, other, preferNotSay).
+
+- DisplayName — Human-readable label.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_Role
+
+-  RoleId — Primary key.
+
+-  RoleCode — user, buyer, admin.
+
+-  DisplayName — Label for UI.
+
+-  Description — Role summary.
+
+-  IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_MeasurementSystem
+
+- MeasurementSystemId — Primary key.
+
+- MeasurementSystemCode — metric, imperial, etc.
+
+- DisplayName — Human label.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_Sex
+
+- SexId — Primary key.
+
+- SexCode — male, female, intersex, unknown, preferNotSay.
+
+- DisplayName — Human label.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_Platform
+
+- PlatformId — Primary key.
+
+- PlatformCode — healthkit, healthConnect, fitbit, manual, etc.
+
+- Description — Platform summary.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_Metric
+
+- MetricId — Primary key.
+
+- MetricCode — Stable code (steps, heartRate, distanceWalkingRunning, etc.).
+
+- DisplayName — Human label.
+
+- DefaultUnitId — FK → MST_Unit.UnitId (canonical unit).
+
+- ValueKindId — FK → MST_ValueKind.ValueKindId (quantity, sample, interval, category, boolean).
+
+- IsCumulative — true if values are running totals that need differencing.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_Unit
+
+- UnitId — Primary key.
+
+- UnitCode — count, meter, kilocalorie, beatsPerMin, minute, etc.
+
+- DisplayName — Human label.
+
+- UcumCode — Standard UCUM code (e.g., m, kg, kcal, 1/min).
+
+- Type — Dimension (length, mass, count, duration, rate).
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_VendorType
+
+- VendorTypeId — Primary key.
+
+- VendorTypeCode — phone, watch, band, scale, app.
+
+- Description — Device/app category.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_ValueKind
+
+- ValueKindId — Primary key.
+
+- ValueKindCode — quantity, sample, interval, category, boolean.
+
+- Description — How to interpret metric values.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_SyncScope
+
+- SyncScopeId — Primary key.
+
+- SyncScopeCode — observations, rollups_hour, rollups_day, vendor_records, etc.
+
+- Description — What’s synced in this scope.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_SyncStatus
+
+- SyncStatusId — Primary key.
+
+- SyncStatusCode — idle, inProgress, success, failed, partial.
+
+- Description — Sync outcome meaning.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_PostingStatus
+
+- PostingStatusId — Primary key.
+
+- PostingStatusCode — draft, open, paused, closed, archived.
+
+- Description — Posting lifecycle state.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_ApplicationStatus
+
+- ApplicationStatusId — Primary key.
+
+- ApplicationStatusCode — draft, submitted, underReview, approved, rejected, etc.
+
+- Description — Application lifecycle state.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_GrantStatus
+
+- GrantStatusId — Primary key.
+
+- GrantStatusCode — pendingActivation, active, expired, revoked, fulfilled.
+
+- Description — Data grant lifecycle state.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_ViewSessionStatus
+
+- ViewSessionStatusId — Primary key.
+
+- ViewSessionStatusCode — active, expired, revoked, blocked, idle.
+
+- Description — Viewer session state.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_RollUpPeriod
+
+- RollUpPeriodId — Primary key.
+
+- RollUpPeriodCode — hour, day, week, month, quarter.
+
+- Description — Bucket period meaning.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_SourceApp
+
+- SourceAppId — Primary key.
+
+- PlatformId — FK → MST_Platform.PlatformId.
+
+- AppIdentifier — Bundle/package id (e.g., com.apple.health).
+
+- DisplayName — Human label.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_SourcePolicy
+
+- SourcePolicyId — Primary key.
+
+- PolicyCode — e.g., default, preferWatch, preferPhone, etc.
+
+- Description — Human summary.
+
+- PolicyJson — JSON policy (preferred vendor types/apps, dedupe rules, etc.).
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_ViewPolicy
+
+- ViewPolicyId — Primary key.
+
+- PolicyCode — e.g., standard15, tight15.
+
+- Description — Human summary.
+
+- TtlSeconds — Token time-to-live.
+
+- IdleTimeoutSeconds — Idle timeout before expiry.
+
+- MaxRowsPerPage / MaxRowsPerSession — Row caps.
+
+- MaxRequestsPerMinute — API throttle.
+
+- CanExport — Whether CSV export is allowed.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_ConsentVersion
+
+- ConsentVersionId — Primary key.
+
+- ConsentCode — Version code (e.g., CONSENT_V2).
+
+- Description — Title/summary.
+
+- EffectiveFrom / RetiredOn — Lifecycle dates.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_DecisionReason
+
+- DecisionReasonId — Primary key.
+
+- DecisionReasonCode — eligibility_failed, quota_full, duplicate, etc.
+
+- Description — Human summary.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_ViewEventCode
+
+- ViewEventCodeId — Primary key.
+
+- ViewEventCode — start, page, sort, filter, end, etc.
+
+- Description — Event meaning for UI/analytics.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_RollupWindow
+
+- RollupWindowId — Primary key.
+
+- RollupWindowCode — last24h, last7d, last30d, etc.
+
+- LengthDays — Days spanned by the window.
+
+- Description — Human label.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_DateWindowPolicy
+
+- DateWindowPolicyId — Primary key.
+
+- DateWindowPolicyCode — absolute, relativeSnapshot, etc.
+
+- Description — How postings interpret date windows.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## MST_AccessEventCode
+
+- AccessEventCodeId — Primary key.
+
+- AccessEventCode — app_submitted, grant_activated, session_started, etc.
+
+- Description — Meaning in audit logs.
+
+- IsActive / IsModified / CreatedBy / CreatedOn / ModifiedBy / ModifiedOn — Audit.
+
+## TRN_VendorRecord
+
+- VendorRecordId — Vendor’s stable id (often alphanumeric; store as text if needed).
+
+- UserId — FK → MST_User.UserId (data owner).
+
+- PlatformId — FK → MST_Platform.PlatformId.
+
+- VendorTypeId — FK → MST_VendorType.VendorTypeId.
+
+- SourceAppId — FK → MST_SourceApp.SourceAppId.
+
+- BundleorPackage — App bundle/package id (e.g., com.apple.health).
+
+- DeviceName — Human device/app name.
+
+- DeviceModel — Model code (e.g., iPhone15,2, SM-R960).
+
+- OsVersion — OS/firmware version.
+
+- AppVersion — App version of the writer.
+
+- IsDeleted — Soft delete flag.
+
+- MetaJson — Extra attributes (JSON).
+
+- IngestedAt — First time this vendor record was seen.
+
+## TRN_Observation
+
+- ObservationId — Primary key, auto-increment.
+
+- UserId — FK → MST_User.UserId.
+
+- PlatformId — FK → MST_Platform.PlatformId.
+
+- MetricId — FK → MST_Metric.MetricId.
+
+- UnitId — FK → MST_Unit.UnitId (unit for Value).
+
+- StartTime — Interval start (or sample time).
+
+- EndTIme (sic; intended EndTime) — Interval end (NULL for samples).
+
+- Value — Numeric value (count, distance, kcal, BPM, etc.).
+
+- VendorRecordId — FK → TRN_VendorRecord.VendorRecordId (provenance).
+
+- IsDeleted — Soft delete flag.
+
+- MetaJson — Extra attributes (JSON).
+
+- IngestedAt — Ingestion timestamp.
+
+## TRN_UserSyncCheckpoint
+
+- CheckPointId — Primary key.
+
+- UserId — FK → MST_User.UserId.
+
+- PlatformId — FK → MST_Platform.PlatformId.
+
+- SyncScopeId — FK → MST_SyncScope.SyncScopeId (what is being synced).
+
+- MetricId — FK → MST_Metric.MetricId (nullable; scope-wide if NULL).
+
+- LastSyncedAt — Last attempt (success or failure).
+
+- LastSuccessAt — Last successful completion.
+
+- VendorCursur (sic; intended VendorCursor) — Opaque vendor paging token.
+
+- SyncStatusId — FK → MST_SyncStatus.SyncStatusId.
+
+- ErrorCode — Short machine error code (if any).
+
+- Errormessage — Human-readable error message.
+
+- UpdateAt — Row last updated timestamp.
+
+## TRN_RollUpWindow
+
+- RollUpId — Primary key.
+
+- UserId — FK → MST_User.UserId.
+
+- MetricId — FK → MST_Metric.MetricId.
+
+- UnitId — FK → MST_Unit.UnitId.
+
+- WindowId — FK → MST_RollupWindow.RollupWindowId (e.g., last7d).
+
+- WindowStart / WindowEnd — Time window boundaries (inclusive/exclusive).
+
+- IsComplete — true when the window has been fully computed.
+
+- ValueSum / ValueAvg / ValueMin / ValueMax — Aggregates over the window.
+
+- SampleCount — Number of contributing observations/samples.
+
+- SourcePolicyId — FK → MST_SourcePolicy.SourcePolicyId (source selection & dedupe policy used).
+
+- ComputedAt — When the window was computed.
+
+- Version — Computation logic/schema version.
+
+## TRN_RollupBucket
+
+- RollupBucketId — Primary key.
+
+- UserId — FK → MST_User.UserId.
+
+- MetricId — FK → MST_Metric.MetricId.
+
+- UnitId — FK → MST_Unit.UnitId.
+
+- RollupPeriodId — FK → MST_RollUpPeriod.RollUpPeriodId (hour/day/week/etc.).
+
+- BucketStart — Start of the bucket (period boundary).
+
+- IsComplete — Finalized flag for the bucket.
+
+- ValueSum / ValueAvg / ValueMin / ValueMax — Aggregates per bucket.
+
+- SampleCount — Observations in this bucket.
+
+- SourcePolicyId — FK → MST_SourcePolicy.SourcePolicyId.
+
+- ComputedAt — When this bucket was computed.
+
+- Version — Computation logic/schema version.
+
+## TRN_Posting
+
+- PostingId — Primary key.
+
+- BuyerId — FK → MST_User.UserId (posting owner).
+
+- Title / Summary / Description — Posting content.
+
+- PostingStatusId — FK → MST_PostingStatus.PostingStatusId.
+
+- ApplyOpenAt / ApplyCloseAt — Application window.
+
+- TargetParticipants / MaxParticipants — Recruiting targets and caps.
+
+- AutoCloseWhenFull — Auto-close when max is reached.
+
+- ConsentVersionId — FK → MST_ConsentVersion.ConsentVersionId.
+
+- ViewPolicyId — FK → MST_ViewPolicy.ViewPolicyId.
+
+- DateWindowPolicyId — FK → MST_DateWindowPolicy.DateWindowPolicyId.
+
+- FromDate / ToDate — Absolute window (if policy requires).
+
+- LastNDays — Relative window length (if policy requires).
+
+- EligibilityJson — Eligibility rules (JSON).
+
+## TRN_PostingMetric
+
+- PostingMetricId — Primary key.
+
+- PostingId — FK → TRN_Posting.PostingId.
+
+- MetricId — FK → MST_Metric.MetricId.
+
+- UnitId — FK → MST_Unit.UnitId (optional override).
+
+- MinGranularityCode — Minimum granularity required (hour/day).
+
+- Required — Whether metric is required for approval.
+
+- CreatedAt — Row creation timestamp.
+
+## TRN_Application
+
+- ApplicationId — Primary key.
+
+- PostingId — FK → TRN_Posting.PostingId.
+
+- UserId — FK → MST_User.UserId.
+
+- ApplicationStatusId — FK → MST_ApplicationStatus.ApplicationStatusId.
+
+- RollupPeriodId — FK → MST_RollUpPeriod.RollUpPeriodId (optional min granularity request).
+
+- SubmittedAt / DecidedAt — Application lifecycle timestamps.
+
+- DecidedBy — FK → MST_User.UserId (buyer/admin who decided).
+
+- DecisionReasonId — FK → MST_DecisionReason.DecisionReasonId (optional).
+
+- ProfileSnapshotJson — Snapshot of user profile at submission (JSON).
+
+- CoveragePreviewJson — Estimated data coverage for the posting window (JSON).
+
+## TRN_ConsentGrant
+
+- ConsentGrantId — Primary key.
+
+- ApplicationId — FK → TRN_Application.ApplicationId.
+
+- ConsentVersionId — FK → MST_ConsentVersion.ConsentVersionId.
+
+- ConsentGivenAt / ConsentRevokedAt — Consent action timestamps.
+
+- ConsentValidFrom / ConsentValidUntil — Consent validity dates.
+
+- ConsentScopeHash — Hash of consent scope (proof/idempotency).
+
+- EffectiveStateCode — active / revoked / expired.
+
+- CreatedAt / ModifiedAt — Timestamps.
+
+## TRN_DataGrant
+
+- DataGrantId — Primary key.
+
+- ApplicationId — FK → TRN_Application.ApplicationId.
+
+- PostingId — FK → TRN_Posting.PostingId.
+
+- UserId — FK → MST_User.UserId (data owner).
+
+- GrantStatusId — FK → MST_GrantStatus.GrantStatusId.
+
+- MetricsFrozenJson — Frozen list of metrics/units granted (JSON).
+
+- WindowFrozenJson — Frozen date window (JSON).
+
+- ValidFrom / ValidUntil — Grant validity (DateTime).
+
+- MaxUses / UseCount — Usage quota and current usage.
+
+- ActivationTokenHash — Optional activation token (hashed).
+
+- ActivatedAt / RevokedAt / CreatedAt / ModifiedAt — Lifecycle timestamps.
+
+## TRN_ViewSession
+
+- ViewSessionId — Primary key.
+
+- DataGrantId — FK → TRN_DataGrant.DataGrantId.
+
+- PostingId — FK → TRN_Posting.PostingId (redundant but speeds joins).
+
+- BuyerId — FK → MST_User.UserId (viewer).
+
+- ViewSessionStatusId — FK → MST_ViewSessionStatus.ViewSessionStatusId.
+
+- PolicyId — FK → MST_ViewPolicy.ViewPolicyId.
+
+- IssuedAt / ExpiresAt / LastSeenAt — Token lifecycle timestamps.
+
+- IpAddress / userAgent — Client info snapshot.
+
+- RequestCount / RowsReturnedTotal — Usage counters.
+
+- ViewTokenHash — Hashed viewer token.
+
+- CreatedAt / ModifiedAt — Timestamps.
+
+## TRN_ViewEvent
+
+- ViewEventId — Primary key.
+
+- ViewSessionId — FK → TRN_ViewSession.ViewSessionId.
+
+- When — Event timestamp.
+
+- ViewEventCodeId — FK → MST_ViewEventCode.ViewEventCodeId.
+
+- MetaJson — Event metadata (JSON).
+
+- IpAddress / UserAgent — Client info snapshot.
+
+- CreatedAt / ModifiedAt — Timestamps.
+
+## TRN_VisibilityFlag
+
+- VisibilityId — Primary key.
+
+- DataGrantId — FK → TRN_DataGrant.DataGrantId.
+
+- IsAccessible — Current access decision (computed).
+
+- ComputedAt — When it was computed.
+
+- ReasonCode — Short reason (ok, pendingActivation, expired, revoked, etc.).
+
+- Notes — Optional human note.
+
+## TRN_AccessLog
+
+- AccessLogId — Primary key.
+
+- UserId — FK → MST_User.UserId (actor; may be NULL for system).
+
+- When — Event timestamp.
+
+- AccessEventCodeId — FK → MST_AccessEventCode.AccessEventCodeId.
+
+- TargetKind — Target object kind (posting, application, dataGrant, viewSession).
+
+- TargetId — Id of the target object.
+
+- IpAddress / UserAgent — Client info snapshot.
+
+- ResultCode — ok or error.
+
+- ErrorCode — Optional machine code for failures.
+
+- MetaJson — Extra context (JSON).

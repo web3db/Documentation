@@ -31,7 +31,8 @@ The idea is simple: build an app where people can **sell their health data safel
 │ ├── SRS.md  # Software Requirements Specification – detailed functional & non-functional requirements, with priorities and status
 │ ├── STATUS.md  # Current status: where we are now,last discussion notes
 │ ├── SECURITY.md # Storage/encryption/Web3 thoughts
-│ └── ARCHITECTURE.md # Big-picture design (users, buyers, admins)
+│ ├── ARCHITECTURE.md # Big-picture design (users, buyers, admins)
+│ ├── DATABASE.md # Database schema, entity list, security considerations
 ```
 ---
 

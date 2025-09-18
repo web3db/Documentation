@@ -6,13 +6,13 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 
 ## MST_User
 
-| UserId | ClerkId      | Email               | FirstName | LastName | BirthYear | DateOfBirth | RaceId | SexId | Height | HeightUnitId | Weight | WeightUnitId | MeasurementSystemId | RoleId |
-|---:|---|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1001 | user_01_abc | user1@example.com | John      | Doe      | 1994 | 1994-05-12  | 1 | 1 | 168.0 | 2 | 62.0  | 4 | 1 | 1 |
-| 1002 | user_02_def | user2@example.com | Jane      | Smith    | 1988 | 1988-11-03  | 2 | 2 | 180.0 | 2 | 78.5  | 4 | 1 | 2 |
-| 1003 | user_03_ghi | user3@example.com | Alex      | Johnson  | 1999 | 1999-02-20  | 3 | 3 | 172.0 | 2 | 68.0  | 4 | 1 | 1 |
-| 1004 | user_04_jkl | user4@example.com | Maria     | Garcia   | 1992 | 1992-07-28  | 5 | 4 | 70.0  | 1 | 155.0 | 3 | 2 | 1 |
-| 1005 | user_05_mno | user5@example.com | Liam      | Brown    | 2001 | 2001-12-15  | 1 | 1 | 165.0 | 2 | 55.0  | 4 | 1 | 1 |
+| UserId | ClerkId      | Email               | Name | BirthYear  | RaceId | SexId | Height | HeightUnitId | Weight | WeightUnitId | MeasurementSystemId | RoleId |
+|---:|---|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|
+| 1001 | user_01_abc | user1@example.com | John          | 1994  | 1 | 1 | 168.0 | 2 | 62.0  | 4 | 1 | 1 |
+| 1002 | user_02_def | user2@example.com | Jane   | 1988  | 2 | 2 | 180.0 | 2 | 78.5  | 4 | 1 | 2 |
+| 1003 | user_03_ghi | user3@example.com | Alex     | 1999  | 3 | 3 | 172.0 | 2 | 68.0  | 4 | 1 | 1 |
+| 1004 | user_04_jkl | user4@example.com | Maria     | 1992  | 5 | 4 | 70.0  | 1 | 155.0 | 3 | 2 | 1 |
+| 1005 | user_05_mno | user5@example.com | Liam       | 2001  | 1 | 1 | 165.0 | 2 | 55.0  | 4 | 1 | 1 |
 
 
 > HeightUnitId: 2=cm, 1=in; WeightUnitId: 4=kg, 3=lb. MeasurementSystemId: 1=metric, 2=imperial. RoleId: see MST_Role.

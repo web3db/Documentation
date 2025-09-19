@@ -61,7 +61,6 @@ This doc summarizes database designed for storing **auto-recorded** health data 
 |---:|---|---|
 | 1 | user  | End user / participant |
 | 2 | buyer | Buyer / requester |
-| 3 | admin | Admin / moderator |
 
 ---
 

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Web3Health — Single-File API Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%
+    }
+
+    #swagger-ui {
+      height: 100vh
+    }
+  </style>
+</head>
+
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    const spec = {
+      openapi: "3.0.3",
+      info: {
+        title: "Web3Health API (Single-File)",
+        version: "0.1.0",
+        description: "Core endpoints for User profile, Marketplace, Applications/Grants (Sharing), and Buyer Postings. All examples are inline."
+      },
+      servers: [{ url: "https://api.example.com/v1" }],
+      tags: [
+        { name: "User", description: "End-user profile & preferences" },
+        { name: "Marketplace", description: "Public posting discovery for users" },
+        { name: "Applications & Grants", description: "Apply to postings; manage consent/grants" },
+        { name: "Buyer Postings", description: "Buyer CRUD for postings" }
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" }
+        },
+        schemas: {
+          // --- Common ---
+          PageMeta: {
+            type: "object",
+            properties: {
+              total: { type: "integer", example: 42 },
+              limit: { type: "integer", example: 20 },
+              offset: { type: "integer", example: 0 }
+            }
+          },
+          ApiError: {
+            type: "object",
+            properties: {
+              code: { type: "string", example: "VALIDATION_FAILED" },
+              message: { type: "string", example: "raceId refers to an inactive race" },
+              details: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    field: { type: "string", example: "raceId" },
+                    issue: { type: "string", example: "FOREIGN_KEY_INACTIVE" },
+                    value: { oneOf: [{ type: "string" }, { type: "number" }, { type: "integer" }, { type: "boolean" }, { type: "null" }], example: 99 }
+                  },
+                  required: ["field", "issue"]
+                },
+                example: [
+                  { field: "raceId", issue: "FOREIGN_KEY_INACTIVE", value: 99 }
+                ]
+              },
+              requestId: { type: "string", example: "f9f1c1e1-3b16-42ab-86b5-0c7b27f0e7ad" }
+            },
+            required: ["code", "message"]
+          },
+
+          // --- User & Health Conditions ---
+          HealthCondition: {
+            type: "object",
+            properties: {
+              healthConditionId: { type: "integer", example: 205 },
+              code: { type: "string", example: "T2D" },
+              displayName: { type: "string", example: "Type 2 Diabetes" },
+              isActive: { type: "boolean", example: true }
+            },
+            required: ["healthConditionId", "code", "displayName"]
+          },
+
+          // REPLACE components.schemas.UserProfile (now flat with FK code/display fields)
+          UserProfile: {
+            type: "object",
+            properties: {
+              userId: { type: "integer", example: 1001 },
+              clerkId: { type: "string", example: "usr_abc123" },
+              email: { type: "string", example: "user1@example.com" },
+              name: { type: "string", example: "John" },
+              birthYear: { type: "integer", example: 1994 },
+
+              // race (master) flat
+              raceId: { type: "integer", example: 1 },
+              raceCode: { type: "string", example: "ASIAN" },
+              raceDisplayName: { type: "string", example: "Asian" },
+
+              // sex (master) flat
+              sexId: { type: "integer", example: 1 },
+              sexCode: { type: "string", example: "M" },
+              sexDisplayName: { type: "string", example: "Male" },
+
+              // height
+              heightNum: { type: "number", example: 168.0 },
+              heightUnitId: { type: "integer", example: 2 },
+              heightUnitCode: { type: "string", example: "CM" },
+              heightUnitDisplayName: { type: "string", example: "Centimeter" },
+
+              // weight
+              weightNum: { type: "number", example: 62.0 },
+              weightUnitId: { type: "integer", example: 4 },
+              weightUnitCode: { type: "string", example: "KG" },
+              weightUnitDisplayName: { type: "string", example: "Kilogram" },
+
+              // measurement system
+              measurementSystemId: { type: "integer", example: 1 },
+              measurementSystemCode: { type: "string", example: "METRIC" },
+              measurementSystemDisplayName: { type: "string", example: "Metric" },
+
+              // roles (multi)
+              roleIds: { type: "array", items: { type: "integer" }, example: [2, 3] },
+              roleCodes: { type: "array", items: { type: "string" }, example: ["PARTICIPANT", "RESEARCHER"] },
+              roleDisplayNames: { type: "array", items: { type: "string" }, example: ["Participant", "Researcher"] },
+
+              // health conditions (multi)
+              healthConditionIds: { type: "array", items: { type: "integer" }, example: [205, 310] },
+              healthConditions: {
+                type: "array",
+                items: { $ref: "#/components/schemas/HealthCondition" },
+                example: [
+                  { healthConditionId: 205, code: "T2D", displayName: "Type 2 Diabetes", isActive: true },
+                  { healthConditionId: 310, code: "HYPERTENSION", displayName: "Hypertension", isActive: true }
+                ]
+              },
+
+              isActive: { type: "boolean", example: true },
+              createdBy: { type: "integer", example: 2001 },
+              createdOn: { type: "string", format: "date-time", example: "2025-09-10T10:00:00Z" },
+              modifiedBy: { type: "integer", nullable: true, example: 2001 },
+              modifiedOn: { type: "string", format: "date-time", nullable: true, example: "2025-09-18T09:00:00Z" }
+            },
+            required: ["userId", "email", "name", "isActive", "createdOn"]
+          },
+
+          // REPLACE components.schemas.UserProfileUpdate
+          UserProfileUpdate: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              birthYear: { type: "integer" },
+
+              raceId: { type: "integer" },
+              sexId: { type: "integer" },
+
+              heightNum: { type: "number" },
+              heightUnitId: { type: "integer" },
+
+              weightNum: { type: "number" },
+              weightUnitId: { type: "integer" },
+
+              measurementSystemId: { type: "integer" },
+
+              roleIds: { type: "array", items: { type: "integer" } },
+
+              healthConditionIds: { type: "array", items: { type: "integer" } },
+              // optional per-condition notes on write
+              healthConditionsDetails: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "integer" },
+                    notes: { type: "string" }
+                  },
+                  required: ["id"]
+                },
+                example: [{ id: 205, notes: "A1C < 6.5" }]
+              },
+
+              isActive: { type: "boolean" }
+            }
+          },
+
+          // --- Marketplace / Postings ---
+          PostingMetric: {
+            type: "object",
+            properties: {
+              metricId: { type: "integer", example: 101 },
+              metricCode: { type: "string", example: "STEPS" },
+              metricDisplayName: { type: "string", example: "Steps" },
+
+              unitId: { type: "integer", example: 3 },
+              unitCode: { type: "string", example: "COUNT" },
+              unitDisplayName: { type: "string", example: "Count" },
+
+              minGranularityCode: { type: "string", enum: ["minute", "hour", "day", "week", "month"], example: "day" },
+              required: { type: "boolean", example: true }
+            },
+            required: ["metricId", "metricCode", "metricDisplayName", "required"]
+          },
+          Posting: {
+            type: "object",
+            properties: {
+              postingId: { type: "integer", example: 5001 },
+              buyerId: { type: "integer", example: 2001 },
+              buyerDisplayName: { type: "string", example: "Acme Research Team" },
+
+              title: { type: "string", example: "7-Day Activity Snapshot" },
+              summary: { type: "string", example: "Looking for last-7-day steps + heart rate." },
+              description: { type: "string", example: "Steps and hourly HR samples over last 7 days." },
+              isActive: { type: "boolean", example: true },
+
+              postingStatusId: { type: "integer", example: 2 },
+              postingStatusCode: { type: "string", example: "OPEN" },
+              postingStatusDisplayName: { type: "string", example: "Open" },
+
+              applyOpenAt: { type: "string", format: "date-time", nullable: true, example: "2025-09-01T00:00:00Z" },
+              applyCloseAt: { type: "string", format: "date-time", nullable: true, example: "2025-09-30T23:59:59Z" },
+              targetParticipants: { type: "integer", nullable: true, example: 100 },
+              maxParticipants: { type: "integer", nullable: true, example: 120 },
+              autoCloseWhenFull: { type: "boolean", example: true },
+
+              consentVersionId: { type: "integer", nullable: true, example: 3 },
+              consentCode: { type: "string", nullable: true, example: "CONSENT_V3" },
+              consentDescription: { type: "string", nullable: true, example: "Standard research consent v3" },
+              consentEffectiveFrom: { type: "string", format: "date", nullable: true, example: "2025-07-01" },
+              consentRetiredOn: { type: "string", format: "date", nullable: true, example: null },
+
+              viewPolicyId: { type: "integer", nullable: true, example: 2 },
+              viewPolicyCode: { type: "string", nullable: true, example: "POLICY_STD" },
+              viewPolicyDescription: { type: "string", nullable: true, example: "Standard viewer limits" },
+              viewPolicyTtlSeconds: { type: "integer", nullable: true, example: 3600 },
+              viewPolicyIdleTimeoutSeconds: { type: "integer", nullable: true, example: 900 },
+              viewPolicyMaxRowsPerPage: { type: "integer", nullable: true, example: 1000 },
+              viewPolicyMaxRowsPerSession: { type: "integer", nullable: true, example: 10000 },
+              viewPolicyMaxRequestsPerMinute: { type: "integer", nullable: true, example: 60 },
+              viewPolicyCanExport: { type: "boolean", nullable: true, example: false },
+
+              dateWindowPolicyId: { type: "integer", nullable: true, example: 2 },
+              dateWindowPolicyCode: { type: "string", nullable: true, example: "LAST_N_DAYS" },
+              dateWindowPolicyDescription: { type: "string", nullable: true, example: "Relative window policy" },
+              fromDate: { type: "string", format: "date", nullable: true, example: null },
+              toDate: { type: "string", format: "date", nullable: true, example: null },
+              lastNDays: { type: "integer", nullable: true, example: 7 },
+
+              requiredHealthConditionIds: {
+                type: "array", items: { type: "integer" }, example: [205]
+              },
+              requiredHealthConditions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    healthConditionId: { type: "integer", example: 205 },
+                    code: { type: "string", example: "T2D" },
+                    displayName: { type: "string", example: "Type 2 Diabetes" }
+                  },
+                  required: ["healthConditionId", "code", "displayName"]
+                },
+                example: [
+                  { healthConditionId: 205, code: "T2D", displayName: "Type 2 Diabetes" }
+                ]
+              },
+
+              metrics: { type: "array", items: { $ref: "#/components/schemas/PostingMetric" } },
+
+              tags: { type: "array", items: { type: "string" }, example: ["steps", "heartrate", "last7d"] },
+              mainImageUrl: { type: "string", nullable: true, example: "https://cdn.example.com/p/5001.jpg" },
+              imageUrls: { type: "array", items: { type: "string" }, example: ["https://cdn.example.com/p/5001_1.jpg"] },
+
+              eligibilityMinAge: { type: "integer", nullable: true, example: 18 },
+              eligibilityMeasurementSystemId: { type: "integer", nullable: true, example: 1 },
+              eligibilityMeasurementSystemCode: { type: "string", nullable: true, example: "METRIC" },
+              eligibilityMeasurementSystemDisplayName: { type: "string", nullable: true, example: "Metric" },
+              eligibilityJson: { type: "object", nullable: true, example: { minDataReadinessScore: 70 } },
+
+              createdBy: { type: "integer", example: 2001 },
+              createdOn: { type: "string", format: "date-time", example: "2025-09-10T10:00:00Z" },
+              modifiedBy: { type: "integer", nullable: true, example: 2001 },
+              modifiedOn: { type: "string", format: "date-time", nullable: true, example: "2025-09-18T09:00:00Z" }
+            },
+            required: ["postingId", "buyerId", "title", "isActive", "createdOn", "postingStatusCode"]
+          },
+
+          PostingCreateInput: {
+            type: "object",
+            required: ["title", "status", "metrics"],
+            properties: {
+              title: { type: "string" },
+              summary: { type: "string" },
+              description: { type: "string" },
+              status: { type: "string", enum: ["draft", "open", "paused", "closed"] },
+              applyOpenAt: { type: "string", format: "date-time", nullable: true },
+              applyCloseAt: { type: "string", format: "date-time", nullable: true },
+              targetParticipants: { type: "integer", nullable: true },
+              maxParticipants: { type: "integer", nullable: true },
+              consentVersionId: { type: "integer", nullable: true },
+              viewPolicyId: { type: "integer", nullable: true },
+              dateWindowPolicyId: { type: "integer", nullable: true },
+              fromDate: { type: "string", format: "date", nullable: true },
+              toDate: { type: "string", format: "date", nullable: true },
+              lastNDays: { type: "integer", nullable: true },
+              eligibility: { type: "object" },
+              metrics: { type: "array", items: { $ref: "#/components/schemas/PostingMetric" } },
+              imageUrl: { type: "string", nullable: true },
+              tags: { type: "array", items: { type: "string" } }
+            }
+          },
+          PostingUpdateInput: {
+            allOf: [{ $ref: "#/components/schemas/PostingCreateInput" }]
+          },
+          PostingListResponse: {
+            type: "object",
+            properties: {
+              items: { type: "array", items: { $ref: "#/components/schemas/Posting" } },
+              page: { type: "integer", example: 1 },
+              pageSize: { type: "integer", example: 20 },
+              total: { type: "integer", example: 143 }
+            }
+          },
+
+          // --- Applications & Grants (Sharing) ---
+          Application: {
+            type: "object",
+            properties: {
+              applicationId: { type: "integer", example: 70001 },
+              postingId: { type: "integer", example: 5001 },
+              userId: { type: "integer", example: 1001 },
+              status: { type: "string", enum: ["draft", "submitted", "underReview", "approved", "rejected"], example: "submitted" },
+              submittedAt: { type: "string", format: "date-time", example: "2025-09-12T10:05:00Z" }
+            }
+          },
+          ApplicationCreateInput: {
+            type: "object",
+            required: ["postingId"],
+            properties: {
+              postingId: { type: "integer" },
+              note: { type: "string", example: "I meet the criteria." }
+            }
+          },
+          GrantSummary: {
+            type: "object",
+            properties: {
+              dataGrantId: { type: "integer", example: 72001 },
+              postingId: { type: "integer", example: 5001 },
+              buyerId: { type: "integer", example: 2001 },
+              status: { type: "string", enum: ["pendingActivation", "active", "expired", "revoked", "fulfilled"], example: "active" },
+              validFrom: { type: "string", format: "date-time", example: "2025-09-13T09:15:00Z" },
+              validUntil: { type: "string", format: "date-time", example: "2025-09-20T09:15:00Z" },
+              maxUses: { type: "integer", example: 20 },
+              useCount: { type: "integer", example: 3 },
+              windowFrozen: { type: "string", example: "2025-09-06 → 2025-09-13" }
+            }
+          },
+          GrantListResponse: {
+            type: "object",
+            properties: {
+              items: { type: "array", items: { $ref: "#/components/schemas/GrantSummary" } },
+              meta: { $ref: "#/components/schemas/PageMeta" }
+            }
+          }
+        }
+      },
+
+      security: [{ bearerAuth: [] }],
+
+      paths: {
+        // ===== USER =====
+        "/users": {
+          get: {
+            tags: ["User"],
+            summary: "List users",
+            description: "Returns a paginated list of users with flat FK fields and health conditions.",
+            parameters: [
+              { in: "query", name: "q", schema: { type: "string" }, description: "Search on email/name" },
+              { in: "query", name: "email", schema: { type: "string" } },
+              { in: "query", name: "name", schema: { type: "string" } },
+              { in: "query", name: "isActive", schema: { type: "boolean" } },
+              { in: "query", name: "raceId", schema: { type: "integer" } },
+              { in: "query", name: "sexId", schema: { type: "integer" } },
+              { in: "query", name: "measurementSystemId", schema: { type: "integer" } },
+              { in: "query", name: "createdFrom", schema: { type: "string", format: "date-time" } },
+              { in: "query", name: "createdTo", schema: { type: "string", format: "date-time" } },
+              { in: "query", name: "modifiedFrom", schema: { type: "string", format: "date-time" } },
+              { in: "query", name: "modifiedTo", schema: { type: "string", format: "date-time" } },
+              { in: "query", name: "sort", schema: { type: "string" }, description: "e.g., createdOn:desc,name:asc" },
+              { in: "query", name: "page", schema: { type: "integer", default: 1, minimum: 1 } },
+              { in: "query", name: "pageSize", schema: { type: "integer", default: 25, minimum: 1, maximum: 200 } }
+            ],
+            responses: {
+              "200": {
+                description: "Users page",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        items: { type: "array", items: { $ref: "#/components/schemas/UserProfile" } },
+                        page: { type: "integer", example: 1 },
+                        pageSize: { type: "integer", example: 25 },
+                        total: { type: "integer", example: 413 }
+                      }
+                    },
+                    example: {
+                      items: [
+                        {
+                          userId: 1001, clerkId: "usr_abc123", email: "user1@example.com", name: "John",
+                          birthYear: 1994,
+                          raceId: 1, raceCode: "ASIAN", raceDisplayName: "Asian",
+                          sexId: 1, sexCode: "M", sexDisplayName: "Male",
+                          heightNum: 168.0, heightUnitId: 2, heightUnitCode: "CM", heightUnitDisplayName: "Centimeter",
+                          weightNum: 62.0, weightUnitId: 4, weightUnitCode: "KG", weightUnitDisplayName: "Kilogram",
+                          measurementSystemId: 1, measurementSystemCode: "METRIC", measurementSystemDisplayName: "Metric",
+                          roleIds: [2], roleCodes: ["PARTICIPANT"], roleDisplayNames: ["Participant"],
+                          healthConditionIds: [205, 310],
+                          healthConditions: [
+                            { healthConditionId: 205, code: "T2D", displayName: "Type 2 Diabetes", isActive: true },
+                            { healthConditionId: 310, code: "HYPERTENSION", displayName: "Hypertension", isActive: true }
+                          ],
+                          isActive: true, createdOn: "2025-09-10T10:00:00Z", modifiedOn: "2025-09-18T09:00:00Z"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          post: {
+            tags: ["User"],
+            summary: "Create user",
+            description: "Creates a user. Client sends FK ids and arrays; server returns flat record with FK code/display fields populated.",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: {
+                    allOf: [
+                      { $ref: "#/components/schemas/UserProfileUpdate" },
+                      {
+                        type: "object", properties: {
+                          email: { type: "string" },
+                          name: { type: "string" },
+                          clerkId: { type: "string" }
+                        }, required: ["email", "name"]
+                      }
+                    ]
+                  },
+                  example: {
+                    clerkId: "usr_abc123",
+                    email: "alex@example.com",
+                    name: "Alex Doe",
+                    birthYear: 1999,
+                    raceId: 1, sexId: 1,
+                    heightNum: 175.3, heightUnitId: 2,
+                    weightNum: 72.5, weightUnitId: 5,
+                    measurementSystemId: 1,
+                    roleIds: [2],
+                    healthConditionIds: [205, 310],
+                    healthConditionsDetails: [
+                      { id: 205, notes: "diagnosed 2022" }
+                    ]
+                  }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Created",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/UserProfile" }
+                  }
+                }
+              },
+              "400": { description: "Validation error", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiError" } } } }
+            }
+          }
+        },
+
+        "/users/{userId}": {
+          get: {
+            tags: ["User"],
+            summary: "Get user by ID",
+            description: "Returns a flat user record with FK code/display fields and health conditions.",
+            parameters: [{ in: "path", name: "userId", required: true, schema: { type: "integer" } }],
+            responses: {
+              "200": {
+                description: "User",
+                content: { "application/json": { schema: { $ref: "#/components/schemas/UserProfile" } } }
+              },
+              "404": { description: "Not found" }
+            }
+          },
+
+          patch: {
+            tags: ["User"],
+            summary: "Update user (partial)",
+            description: "Partial update. Accepts FK ids and arrays; returns flat record.",
+            parameters: [{ in: "path", name: "userId", required: true, schema: { type: "integer" } }],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/UserProfileUpdate" },
+                  example: { name: "Alex W.", roleIds: [2], healthConditionIds: [205] }
+                }
+              }
+            },
+            responses: {
+              "200": { description: "Updated", content: { "application/json": { schema: { $ref: "#/components/schemas/UserProfile" } } } },
+              "400": { description: "Validation error", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiError" } } } },
+              "404": { description: "Not found" }
+            }
+          },
+
+          put: {
+            tags: ["User"],
+            summary: "Replace user (full)",
+            description: "Full replace. All required fields must be present.",
+            parameters: [{ in: "path", name: "userId", required: true, schema: { type: "integer" } }],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: {
+                    allOf: [
+                      { $ref: "#/components/schemas/UserProfileUpdate" },
+                      {
+                        type: "object", properties: {
+                          email: { type: "string" },
+                          name: { type: "string" }
+                        }, required: ["email", "name"]
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            responses: {
+              "200": { description: "Replaced", content: { "application/json": { schema: { $ref: "#/components/schemas/UserProfile" } } } },
+              "400": { description: "Validation error", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiError" } } } },
+              "404": { description: "Not found" }
+            }
+          },
+
+          delete: {
+            tags: ["User"],
+            summary: "Soft-delete user",
+            description: "Sets isActive=false. No hard deletes are performed.",
+            parameters: [{ in: "path", name: "userId", required: true, schema: { type: "integer" } }],
+            responses: { "204": { description: "Deleted (soft)" }, "404": { description: "Not found" } }
+          }
+        },
+
+
+        // ===== MARKETPLACE =====
+        "/marketplace/postings": {
+          get: {
+            tags: ["Marketplace"],
+            summary: "List marketplace postings",
+            description: "Public/user-facing listing. Flat fields with FK code/display names.",
+            parameters: [
+              { in: "query", name: "q", schema: { type: "string" }, description: "Search title/summary" },
+              { in: "query", name: "postingStatusId", schema: { type: "integer" } },
+              { in: "query", name: "postingStatusCode", schema: { type: "string", example: "OPEN" } },
+              { in: "query", name: "buyerId", schema: { type: "integer" } },
+              { in: "query", name: "requiredHealthConditionId", schema: { type: "integer" } },
+              { in: "query", name: "metricId", schema: { type: "integer" } },
+              { in: "query", name: "metricCode", schema: { type: "string", example: "STEPS" } },
+              { in: "query", name: "lastNDays", schema: { type: "integer" } },
+              { in: "query", name: "fromDate", schema: { type: "string", format: "date" } },
+              { in: "query", name: "toDate", schema: { type: "string", format: "date" } },
+              { in: "query", name: "eligibilityMinAgeGte", schema: { type: "integer" } },
+              { in: "query", name: "eligibilityMeasurementSystemId", schema: { type: "integer" } },
+              { in: "query", name: "sort", schema: { type: "string" }, description: "e.g., createdOn:desc,title:asc" },
+              { in: "query", name: "page", schema: { type: "integer", default: 1, minimum: 1 } },
+              { in: "query", name: "pageSize", schema: { type: "integer", default: 20, minimum: 1, maximum: 100 } }
+            ],
+            responses: {
+              "200": {
+                description: "Page of postings",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/PostingListResponse" },
+                    example: {
+                      items: [
+                        {
+                          postingId: 5001, buyerId: 2001, buyerDisplayName: "Acme Research Team",
+                          title: "7-Day Activity Snapshot",
+                          summary: "Looking for last-7-day steps + heart rate.",
+                          description: "Steps and hourly HR samples over last 7 days.",
+                          isActive: true,
+                          postingStatusId: 2, postingStatusCode: "OPEN", postingStatusDisplayName: "Open",
+                          applyOpenAt: "2025-09-01T00:00:00Z", applyCloseAt: "2025-09-30T23:59:59Z",
+                          targetParticipants: 100, maxParticipants: 120, autoCloseWhenFull: true,
+                          consentVersionId: 3, consentCode: "CONSENT_V3", consentDescription: "Standard research consent v3",
+                          viewPolicyId: 2, viewPolicyCode: "POLICY_STD", viewPolicyDescription: "Standard viewer limits",
+                          dateWindowPolicyId: 2, dateWindowPolicyCode: "LAST_N_DAYS", dateWindowPolicyDescription: "Relative window policy",
+                          fromDate: null, toDate: null, lastNDays: 7,
+                          requiredHealthConditionIds: [205],
+                          requiredHealthConditions: [{ healthConditionId: 205, code: "T2D", displayName: "Type 2 Diabetes" }],
+                          metrics: [
+                            { metricId: 101, metricCode: "STEPS", metricDisplayName: "Steps", unitId: 3, unitCode: "COUNT", unitDisplayName: "Count", minGranularityCode: "day", required: true },
+                            { metricId: 110, metricCode: "HR", metricDisplayName: "Heart Rate", unitId: 5, unitCode: "BPM", unitDisplayName: "Beats Per Minute", minGranularityCode: "hour", required: true }
+                          ],
+                          tags: ["steps", "heartrate", "last7d"],
+                          mainImageUrl: "https://cdn.example.com/p/5001.jpg",
+                          imageUrls: ["https://cdn.example.com/p/5001_1.jpg"],
+                          eligibilityMinAge: 18,
+                          eligibilityMeasurementSystemId: 1, eligibilityMeasurementSystemCode: "METRIC", eligibilityMeasurementSystemDisplayName: "Metric",
+                          eligibilityJson: { minDataReadinessScore: 70 },
+                          createdBy: 2001, createdOn: "2025-09-10T10:00:00Z",
+                          modifiedBy: 2001, modifiedOn: "2025-09-18T09:00:00Z"
+                        }
+                      ],
+                      page: 1, pageSize: 20, total: 143
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "/marketplace/postings/{postingId}": {
+          get: {
+            tags: ["Marketplace"],
+            summary: "Get a posting",
+            parameters: [{ in: "path", name: "postingId", required: true, schema: { type: "integer" } }],
+            responses: {
+              "200": {
+                description: "Posting",
+                content: { "application/json": { schema: { $ref: "#/components/schemas/Posting" } } }
+              },
+              "404": { description: "Not found" }
+            }
+          }
+        },
+
+        // ADD buyer alias (keeps your existing /buyer/postings untouched)
+        "/buyers/{buyerId}/postings": {
+          get: {
+            tags: ["Marketplace"],
+            summary: "List postings by buyer",
+            description: "Alias for filtering by buyerId; returns flat postings.",
+            parameters: [
+              { in: "path", name: "buyerId", required: true, schema: { type: "integer" } },
+              { in: "query", name: "postingStatusCode", schema: { type: "string", example: "OPEN" } },
+              { in: "query", name: "page", schema: { type: "integer", default: 1, minimum: 1 } },
+              { in: "query", name: "pageSize", schema: { type: "integer", default: 20, minimum: 1, maximum: 100 } }
+            ],
+            responses: {
+              "200": {
+                description: "Buyer postings",
+                content: { "application/json": { schema: { $ref: "#/components/schemas/PostingListResponse" } } }
+              }
+            }
+          }
+        },
+        // ===== APPLICATIONS & GRANTS (SHARING) =====
+        "/applications": {
+          post: {
+            tags: ["Applications & Grants"], summary: "Apply to a posting (user)",
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ApplicationCreateInput" },
+                  example: { postingId: 5001, note: "I meet the criteria." }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Application submitted",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/Application" },
+                    example: {
+                      applicationId: 70006, postingId: 5001, userId: 1001,
+                      status: "submitted", submittedAt: "2025-09-18T12:00:00Z"
+                    }
+                  }
+                }
+              },
+              "400": { description: "Validation error", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiError" } } } }
+            }
+          }
+        },
+
+        "/sharing/grants": {
+          get: {
+            tags: ["Applications & Grants"], summary: "List my active grants (user)",
+            security: [{ bearerAuth: [] }],
+            responses: {
+              "200": {
+                description: "Active grants",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/GrantListResponse" },
+                    example: {
+                      items: [
+                        {
+                          dataGrantId: 72001, postingId: 5001, buyerId: 2001,
+                          status: "active", validFrom: "2025-09-13T09:15:00Z",
+                          validUntil: "2025-09-20T09:15:00Z", maxUses: 20, useCount: 3,
+                          windowFrozen: "2025-09-06 → 2025-09-13"
+                        }
+                      ],
+                      meta: { total: 1, limit: 20, offset: 0 }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        // ===== BUYER POSTINGS =====
+        "/buyer/postings": {
+          get: {
+            tags: ["Buyer Postings"], summary: "List my postings (buyer)",
+            security: [{ bearerAuth: [] }],
+            parameters: [
+              { in: "query", name: "status", schema: { type: "string", enum: ["draft", "open", "paused", "closed", "archived"] } }
+            ],
+            responses: {
+              "200": {
+                description: "Buyer postings",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/PostingListResponse" },
+                    example: {
+                      items: [
+                        {
+                          "postingId": 5001,
+                          "buyerId": 2001,
+                          "buyerDisplayName": "Acme Research Team",
+
+                          "title": "7-Day Activity Snapshot",
+                          "summary": "Looking for last-7-day steps + heart rate.",
+                          "description": "Steps and hourly HR samples over last 7 days.",
+                          "isActive": true,
+
+                          "postingStatusId": 2,
+                          "postingStatusCode": "OPEN",
+                          "postingStatusDisplayName": "Open",
+
+                          "applyOpenAt": "2025-09-01T00:00:00Z",
+                          "applyCloseAt": "2025-09-30T23:59:59Z",
+                          "targetParticipants": 100,
+                          "maxParticipants": 120,
+                          "autoCloseWhenFull": true,
+
+                          "consentVersionId": 3,
+                          "consentCode": "CONSENT_V3",
+                          "consentDescription": "Standard research consent v3",
+                          "consentEffectiveFrom": "2025-07-01",
+                          "consentRetiredOn": null,
+
+                          "viewPolicyId": 2,
+                          "viewPolicyCode": "POLICY_STD",
+                          "viewPolicyDescription": "Standard viewer limits",
+                          "viewPolicyTtlSeconds": 3600,
+                          "viewPolicyIdleTimeoutSeconds": 900,
+                          "viewPolicyMaxRowsPerPage": 1000,
+                          "viewPolicyMaxRowsPerSession": 10000,
+                          "viewPolicyMaxRequestsPerMinute": 60,
+                          "viewPolicyCanExport": false,
+
+                          "dateWindowPolicyId": 2,
+                          "dateWindowPolicyCode": "LAST_N_DAYS",
+                          "dateWindowPolicyDescription": "Relative window policy",
+                          "fromDate": null,
+                          "toDate": null,
+                          "lastNDays": 7,
+
+                          "requiredHealthConditionIds": [205],
+                          "requiredHealthConditions": [
+                            { "healthConditionId": 205, "code": "T2D", "displayName": "Type 2 Diabetes" }
+                          ],
+
+                          "metrics": [
+                            {
+                              "metricId": 101,
+                              "metricCode": "STEPS",
+                              "metricDisplayName": "Steps",
+                              "unitId": 3,
+                              "unitCode": "COUNT",
+                              "unitDisplayName": "Count",
+                              "minGranularityCode": "day",
+                              "required": true
+                            },
+                            {
+                              "metricId": 110,
+                              "metricCode": "HR",
+                              "metricDisplayName": "Heart Rate",
+                              "unitId": 5,
+                              "unitCode": "BPM",
+                              "unitDisplayName": "Beats Per Minute",
+                              "minGranularityCode": "hour",
+                              "required": true
+                            }
+                          ],
+
+                          "tags": ["steps", "heartrate", "last7d"],
+                          "mainImageUrl": "https://cdn.example.com/p/5001.jpg",
+                          "imageUrls": [
+                            "https://cdn.example.com/p/5001_1.jpg",
+                            "https://cdn.example.com/p/5001_2.jpg"
+                          ],
+
+                          "eligibilityMinAge": 18,
+                          "eligibilityMeasurementSystemId": 1,
+                          "eligibilityMeasurementSystemCode": "METRIC",
+                          "eligibilityMeasurementSystemDisplayName": "Metric",
+                          "eligibilityJson": { "minDataReadinessScore": 70 },
+
+                          "createdBy": 2001,
+                          "createdOn": "2025-09-10T10:00:00Z",
+                          "modifiedBy": 2001,
+                          "modifiedOn": "2025-09-18T09:00:00Z"
+                        }
+
+                      ],
+                      meta: { total: 1, limit: 20, offset: 0 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          post: {
+            tags: ["Buyer Postings"], summary: "Create a posting (buyer)",
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/PostingCreateInput" },
+                  example: {
+                    title: "Energy & Exercise Minutes (30d)",
+                    summary: "KCal + active minutes over last 30 days",
+                    description: "Need active energy and exercise minutes, daily.",
+                    status: "draft",
+                    dateWindowPolicyId: 2, lastNDays: 30,
+                    viewPolicyId: 4, consentVersionId: 1,
+                    metrics: [
+                      { metricId: 140, unitId: 3, minGranularityCode: "day", required: true },
+                      { metricId: 105, unitId: 40, minGranularityCode: "day", required: true }
+                    ],
+                    eligibility: { minAge: 18, healthConditionIds: [205] },
+                    targetParticipants: 80, maxParticipants: 100,
+                    imageUrl: "https://cdn.example.com/p/5050.jpg", tags: ["energy", "minutes", "30d"]
+                  }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Created",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/Posting" },
+                    example: {
+                      postingId: 5050, buyerId: 2001, title: "Energy & Exercise Minutes (30d)",
+                      summary: "KCal + active minutes over last 30 days",
+                      description: "Need active energy and exercise minutes, daily.",
+                      status: "draft", lastNDays: 30, dateWindowPolicyId: 2,
+                      viewPolicyId: 4, consentVersionId: 1,
+                      metrics: [
+                        { metricId: 140, unitId: 3, minGranularityCode: "day", required: true },
+                        { metricId: 105, unitId: 40, minGranularityCode: "day", required: true }
+                      ],
+                      eligibility: { minAge: 18, healthConditionIds: [205] },
+                      targetParticipants: 80, maxParticipants: 100,
+                      imageUrl: "https://cdn.example.com/p/5050.jpg", tags: ["energy", "minutes", "30d"],
+                      isActive: true, createdBy: 2001, createdOn: "2025-09-18T09:00:00Z",
+                      modifiedBy: null, modifiedOn: null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "/buyer/postings/{postingId}": {
+          get: {
+            tags: ["Buyer Postings"], summary: "Get my posting (buyer)",
+            security: [{ bearerAuth: [] }],
+            parameters: [{ in: "path", name: "postingId", required: true, schema: { type: "integer" } }],
+            responses: {
+              "200": { description: "Posting", content: { "application/json": { schema: { $ref: "#/components/schemas/Posting" } } } },
+              "404": { description: "Not found" }
+            }
+          },
+          patch: {
+            tags: ["Buyer Postings"], summary: "Update a posting (buyer)",
+            security: [{ bearerAuth: [] }],
+            parameters: [{ in: "path", name: "postingId", required: true, schema: { type: "integer" } }],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/PostingUpdateInput" },
+                  example: { status: "open", applyOpenAt: "2025-09-18T00:00:00Z", applyCloseAt: "2025-10-02T23:59:59Z" }
+                }
+              }
+            },
+            responses: {
+              "200": { description: "Updated", content: { "application/json": { schema: { $ref: "#/components/schemas/Posting" } } } }
+            }
+          },
+          delete: {
+            tags: ["Buyer Postings"], summary: "Soft-delete a posting (buyer)",
+            description: "Sets isActive=false. All GETs exclude inactive rows.",
+            security: [{ bearerAuth: [] }],
+            parameters: [{ in: "path", name: "postingId", required: true, schema: { type: "integer" } }],
+            responses: { "204": { description: "Deleted (soft)" } }
+          }
+        }
+      }
+    };
+
+    window.ui = SwaggerUIBundle({
+      spec,
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis],
+      layout: "BaseLayout"
+    });
+  </script>
+</body>
+
+</html>

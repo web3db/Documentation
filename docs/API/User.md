@@ -844,11 +844,17 @@ This file documents the **User** APIs, the **tables** they touch, and **backend 
 
 ### User APIs
 
-| # | API                    | Purpose                                                                 |
-|---|------------------------|-------------------------------------------------------------------------|
-| 1 | `GET /users/{userId}`  | Fetch a single user by ID and return their full profile (profile screen)|
-| 2 | `POST /users`          | Create a new user with provided details                                 |
-| 3 | `PATCH /users/{userId}`| Partially update an existing user’s details                             |
+| # | API                                | Purpose                                                                  |
+| - | ---------------------------------- | ------------------------------------------------------------------------ |
+| 1 | `GET /users/{userId}`              | Fetch a single user by ID and return their full profile (profile screen) |
+| 2 | `POST /users`                      | Create a new user with provided details                                  |
+| 3 | `PATCH /users/{userId}`            | Partially update an existing user’s details                              |
+| 4 | `GET /masters/races`               | Return active race options (for dropdowns)                               |
+| 5 | `GET /masters/sexes`               | Return active sex-at-birth options                                       |
+| 6 | `GET /masters/units`               | Return active measurement units                                          |
+| 7 | `GET /masters/measurement-systems` | Return active measurement systems                                        |
+| 8 | `GET /masters/health-conditions`   | Return active health condition options                                   |
+
 
 ---
 
@@ -1161,7 +1167,7 @@ Primary Key: (UserId, HealthConditionId)
 
 
 ## API Descriptions & Examples
-## 1) GET /users/{userId}
+## 1) `GET /users/{userId}`
 
 - Name: Get User by ID
 
@@ -1299,7 +1305,7 @@ Example (response 201)
 ```
 
 
-## 3) PATCH /users/{userId}
+## 3) `PATCH /users/{userId}`
 
 - Name: Update User (Partial)
 
@@ -1394,11 +1400,99 @@ Example B (response 200)
 }
 ```
 
+## Master Lookup APIs
+
+### 4) GET /masters/races
+
+**Purpose:** active race options.
+
+**Example response (5 items)**
+
+```json
+[
+  { "raceId": 1, "raceCode": "ASIAN",    "raceDisplayName": "Asian" },
+  { "raceId": 2, "raceCode": "WHITE",    "raceDisplayName": "White" },
+  { "raceId": 3, "raceCode": "BLACK",    "raceDisplayName": "Black or African American" },
+  { "raceId": 4, "raceCode": "HISPANIC", "raceDisplayName": "Hispanic or Latino" },
+  { "raceId": 5, "raceCode": "OTHER",    "raceDisplayName": "Other / Prefer to self-describe" }
+]
+```
+
+---
+
+### 5) GET /masters/sexes
+
+**Purpose:** active sex-at-birth options.
+
+**Example response (5 items)**
+
+```json
+[
+  { "sexId": 1, "sexCode": "M",      "sexDisplayName": "Male" },
+  { "sexId": 2, "sexCode": "F",      "sexDisplayName": "Female" },
+  { "sexId": 3, "sexCode": "X",      "sexDisplayName": "Intersex / X" },
+  { "sexId": 4, "sexCode": "UNK",    "sexDisplayName": "Unknown" },
+  { "sexId": 5, "sexCode": "DECLINE","sexDisplayName": "Prefer not to say" }
+]
+```
+
+
+### 6) GET /masters/units
+
+**Purpose:** active measurement units.
+
+**Example response (5 items)**
+
+```json
+[
+  { "unitId": 2, "unitCode": "CM",  "unitDisplayName": "Centimeter" },
+  { "unitId": 4, "unitCode": "KG",  "unitDisplayName": "Kilogram" },
+  { "unitId": 5, "unitCode": "BPM", "unitDisplayName": "Beats Per Minute" },
+  { "unitId": 6, "unitCode": "IN",  "unitDisplayName": "Inch" },
+  { "unitId": 7, "unitCode": "LB",  "unitDisplayName": "Pound" }
+]
+```
+
+### 7) GET /masters/measurement-systems
+
+**Purpose:** active measurement systems.
+
+**Example response (5 items)**
+
+```json
+[
+  { "measurementSystemId": 1, "measurementSystemCode": "METRIC",   "measurementSystemDisplayName": "Metric" },
+  { "measurementSystemId": 2, "measurementSystemCode": "IMPERIAL", "measurementSystemDisplayName": "Imperial" },
+  { "measurementSystemId": 3, "measurementSystemCode": "CUSTOM",   "measurementSystemDisplayName": "Custom" },
+  { "measurementSystemId": 4, "measurementSystemCode": "SI",       "measurementSystemDisplayName": "SI Units" },
+  { "measurementSystemId": 5, "measurementSystemCode": "LEGACY",   "measurementSystemDisplayName": "Legacy" }
+]
+```
+
+
+### 8) GET /masters/health-conditions
+
+**Purpose:** active health condition options.
+
+**Example response (5 items)**
+
+```json
+[
+  { "healthConditionId": 205, "code": "T2D",         "displayName": "Type 2 Diabetes" },
+  { "healthConditionId": 310, "code": "HYPERTENSION","displayName": "Hypertension" },
+  { "healthConditionId": 411, "code": "ASTHMA",      "displayName": "Asthma" },
+  { "healthConditionId": 512, "code": "PCOS",        "displayName": "Polycystic Ovary Syndrome" },
+  { "healthConditionId": 613, "code": "CVD",         "displayName": "Cardiovascular Disease" }
+]
+```
+---
 ## Backend Query Logic (SQL)
 
 These queries return the exact flat JSON shape shown above.
 
 ## GET by ID (SQL)
+
+1) GET /users/{userId}
 ```sql
 WITH base AS (
   SELECT
@@ -1468,7 +1562,8 @@ SELECT
     '[]'::jsonb
   ) AS "HealthConditions"
 FROM base b
-LEFT JOIN "TRN_UserHealthCondition" uhc ON uhc."UserId" = b."UserId"
+LEFT JOIN "
+" uhc ON uhc."UserId" = b."UserId"
 LEFT JOIN "MST_HealthCondition" hc      ON hc."HealthConditionId" = uhc."HealthConditionId"
 GROUP BY
   b."UserId", b."ClerkId", b."Email", b."Name", b."BirthYear",
@@ -1483,7 +1578,7 @@ GROUP BY
 
 
 ## POST (Create) (SQL)
-
+2) POST /users
 ```
 BEGIN;
 
@@ -1537,6 +1632,7 @@ COMMIT;
 
 
 ## PATCH (Update Partial) (SQL)
+3) PATCH /users/{userId}
 ``` sql
 BEGIN;
 
@@ -1593,3 +1689,84 @@ CREATE INDEX IF NOT EXISTS idx_user_role  ON "MST_User"("RoleId");
 CREATE INDEX IF NOT EXISTS idx_uhc_user   ON "TRN_UserHealthCondition"("UserId");
 CREATE INDEX IF NOT EXISTS idx_uhc_hc     ON "TRN_UserHealthCondition"("HealthConditionId");
 ```
+
+
+4) GET /masters/races
+
+**SQL**
+
+```sql
+SELECT
+  "RaceId"          AS "raceId",
+  "RaceCode"        AS "raceCode",
+  "RaceDisplayName" AS "raceDisplayName"
+FROM "MST_Race"
+WHERE "IsActive" = TRUE
+ORDER BY "RaceDisplayName" ASC, "RaceCode" ASC;
+```
+
+
+5) GET /masters/sexes
+
+**SQL**
+
+```sql
+SELECT
+  "SexId"          AS "sexId",
+  "SexCode"        AS "sexCode",
+  "SexDisplayName" AS "sexDisplayName"
+FROM "MST_Sex"
+WHERE "IsActive" = TRUE
+ORDER BY "SexDisplayName" ASC, "SexCode" ASC;
+```
+
+---
+
+6) GET /masters/units
+
+**SQL**
+
+```sql
+SELECT
+  "UnitId"          AS "unitId",
+  "UnitCode"        AS "unitCode",
+  "UnitDisplayName" AS "unitDisplayName"
+FROM "MST_Unit"
+WHERE "IsActive" = TRUE
+ORDER BY "UnitDisplayName" ASC, "UnitCode" ASC;
+```
+
+---
+
+7) GET /masters/measurement-systems
+
+**SQL**
+
+```sql
+SELECT
+  "MeasurementSystemId"          AS "measurementSystemId",
+  "MeasurementSystemCode"        AS "measurementSystemCode",
+  "MeasurementSystemDisplayName" AS "measurementSystemDisplayName"
+FROM "MST_MeasurementSystem"
+WHERE "IsActive" = TRUE
+ORDER BY "MeasurementSystemDisplayName" ASC, "MeasurementSystemCode" ASC;
+```
+
+---
+
+
+8) GET /masters/health-conditions
+
+**SQL**
+
+```sql
+SELECT
+  "HealthConditionId" AS "healthConditionId",
+  "Code"              AS "code",
+  "DisplayName"       AS "displayName"
+FROM "MST_HealthCondition"
+WHERE "IsActive" = TRUE
+ORDER BY "DisplayName" ASC, "Code" ASC;
+```
+
+---

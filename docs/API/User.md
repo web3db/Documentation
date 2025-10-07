@@ -846,14 +846,14 @@ This file documents the **User** APIs, the **tables** they touch, and **backend 
 
 | # | API                                | Purpose                                                                  |
 | - | ---------------------------------- | ------------------------------------------------------------------------ |
-| 1 | `GET /users/{userId}`              | Fetch a single user by ID and return their full profile (profile screen) |
-| 2 | `POST /users`                      | Create a new user with provided details                                  |
-| 3 | `PATCH /users/{userId}`            | Partially update an existing user’s details                              |
+| 1 | `GET /users_profile/{userId}`              | Fetch a single user by ID and return their full profile (profile screen) |
+| 2 | `POST /users_create`                      | Create a new user with provided details                                  |
+| 3 | `PATCH /users_update/{userId}`            | Partially update an existing user’s details                              |
 | 4 | `GET /masters/races`               | Return active race options (for dropdowns)                               |
 | 5 | `GET /masters/sexes`               | Return active sex-at-birth options                                       |
 | 6 | `GET /masters/units`               | Return active measurement units                                          |
-| 7 | `GET /masters/measurement-systems` | Return active measurement systems                                        |
-| 8 | `GET /masters/health-conditions`   | Return active health condition options                                   |
+| 7 | `GET /masters/measurement_systems` | Return active measurement systems                                        |
+| 8 | `GET /masters/health_conditions`   | Return active health condition options                                   |
 
 
 ---
@@ -1167,7 +1167,7 @@ Primary Key: (UserId, HealthConditionId)
 
 
 ## API Descriptions & Examples
-## 1) `GET /users/{userId}`
+## 1) `GET/users_profile/{userId}`
 
 - Name: Get User by ID
 
@@ -1238,7 +1238,7 @@ Example (response 200)
 
 
 
-## 2) POST /users
+## 2) POST/users_create
 
 ## Name: Create User
 
@@ -1305,7 +1305,7 @@ Example (response 201)
 ```
 
 
-## 3) `PATCH /users/{userId}`
+## 3) `PATCH/users_update/{userId}`
 
 - Name: Update User (Partial)
 
@@ -1420,7 +1420,7 @@ Example B (response 200)
 
 ---
 
-### 5) GET /masters/sexes
+### 5) GET/masters/sexes
 
 **Purpose:** active sex-at-birth options.
 
@@ -1437,7 +1437,7 @@ Example B (response 200)
 ```
 
 
-### 6) GET /masters/units
+### 6) GET/masters/units
 
 **Purpose:** active measurement units.
 
@@ -1453,7 +1453,7 @@ Example B (response 200)
 ]
 ```
 
-### 7) GET /masters/measurement-systems
+### 7) GET/masters/measurement_systems
 
 **Purpose:** active measurement systems.
 
@@ -1470,7 +1470,7 @@ Example B (response 200)
 ```
 
 
-### 8) GET /masters/health-conditions
+### 8) GET/masters/health_conditions
 
 **Purpose:** active health condition options.
 
@@ -1492,7 +1492,7 @@ These queries return the exact flat JSON shape shown above.
 
 ## GET by ID (SQL)
 
-1) GET /users/{userId}
+1) GET /users_profile/{userId}
 ```sql
 WITH base AS (
   SELECT
@@ -1578,7 +1578,7 @@ GROUP BY
 
 
 ## POST (Create) (SQL)
-2) POST /users
+2) POST/users_create
 ```
 BEGIN;
 
@@ -1632,7 +1632,7 @@ COMMIT;
 
 
 ## PATCH (Update Partial) (SQL)
-3) PATCH /users/{userId}
+3) PATCH/users_update/{userId}
 ``` sql
 BEGIN;
 
@@ -1691,7 +1691,7 @@ CREATE INDEX IF NOT EXISTS idx_uhc_hc     ON "TRN_UserHealthCondition"("HealthCo
 ```
 
 
-4) GET /masters/races
+4) GET/masters/races
 
 **SQL**
 
@@ -1706,7 +1706,7 @@ ORDER BY "RaceDisplayName" ASC, "RaceCode" ASC;
 ```
 
 
-5) GET /masters/sexes
+5) GET/masters/sexes
 
 **SQL**
 
@@ -1722,7 +1722,7 @@ ORDER BY "SexDisplayName" ASC, "SexCode" ASC;
 
 ---
 
-6) GET /masters/units
+6) GET/masters/units
 
 **SQL**
 
@@ -1738,7 +1738,7 @@ ORDER BY "UnitDisplayName" ASC, "UnitCode" ASC;
 
 ---
 
-7) GET /masters/measurement-systems
+7) GET/masters/measurement_systems
 
 **SQL**
 
@@ -1755,7 +1755,7 @@ ORDER BY "MeasurementSystemDisplayName" ASC, "MeasurementSystemCode" ASC;
 ---
 
 
-8) GET /masters/health-conditions
+8) GET/masters/health_conditions
 
 **SQL**
 

@@ -4260,6 +4260,5 @@ ORDER BY "DisplayName" ASC, "Code" ASC;
 * **Auth**: If your platform requires authentication even for catalogs, enforce it uniformly; otherwise keep these public.
 * **Output shape**: Minimal fields only; **no audit columns**; **no pagination**.
 * **Sorting**: Always `DisplayName ASC, Code ASC` to keep dropdowns stable.
-* **Indexes**: Ensure B-tree on `("IsActive")`, `("Code")`, and (optional) a collation/functional index for `LOWER("DisplayName")` if needed later.
 * **Behavior on empty**: Always return `[]`, not `null` or missing field.
 

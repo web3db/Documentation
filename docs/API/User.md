@@ -846,14 +846,14 @@ This file documents the **User** APIs, the **tables** they touch, and **backend 
 
 | # | API                                | Purpose                                                                  |
 | - | ---------------------------------- | ------------------------------------------------------------------------ |
-| 1 | `GET /users_profile/{userId}`              | Fetch a single user by ID and return their full profile (profile screen) |
-| 2 | `POST /users_create`                      | Create a new user with provided details                                  |
-| 3 | `PATCH /users_update/{userId}`            | Partially update an existing user’s details                              |
-| 4 | `GET /races`               | Return active race options (for dropdowns)                               |
-| 5 | `GET /sexes`               | Return active sex-at-birth options                                       |
-| 6 | `GET /units`               | Return active measurement units                                          |
-| 7 | `GET /measurement_systems` | Return active measurement systems                                        |
-| 8 | `GET /health_conditions`   | Return active health condition options                                   |
+| 1 | `GET/users_profile/{userId}`              | Fetch a single user by ID and return their full profile (profile screen) |
+| 2 | `POST/users_create`                      | Create a new user with provided details                                  |
+| 3 | `PATCH/users_update/{userId}`            | Partially update an existing user’s details                              |
+| 4 | `GET/races`               | Return active race options (for dropdowns)                               |
+| 5 | `GET/sexes`               | Return active sex-at-birth options                                       |
+| 6 | `GET/units`               | Return active measurement units                                          |
+| 7 | `GET/measurement_systems` | Return active measurement systems                                        |
+| 8 | `GET/health_conditions`   | Return active health condition options                                   |
 
 
 ---

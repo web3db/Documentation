@@ -849,11 +849,11 @@ This file documents the **User** APIs, the **tables** they touch, and **backend 
 | 1 | `GET /users_profile/{userId}`              | Fetch a single user by ID and return their full profile (profile screen) |
 | 2 | `POST /users_create`                      | Create a new user with provided details                                  |
 | 3 | `PATCH /users_update/{userId}`            | Partially update an existing user’s details                              |
-| 4 | `GET /masters/races`               | Return active race options (for dropdowns)                               |
-| 5 | `GET /masters/sexes`               | Return active sex-at-birth options                                       |
-| 6 | `GET /masters/units`               | Return active measurement units                                          |
-| 7 | `GET /masters/measurement_systems` | Return active measurement systems                                        |
-| 8 | `GET /masters/health_conditions`   | Return active health condition options                                   |
+| 4 | `GET /races`               | Return active race options (for dropdowns)                               |
+| 5 | `GET /sexes`               | Return active sex-at-birth options                                       |
+| 6 | `GET /units`               | Return active measurement units                                          |
+| 7 | `GET /measurement_systems` | Return active measurement systems                                        |
+| 8 | `GET /health_conditions`   | Return active health condition options                                   |
 
 
 ---
@@ -1402,7 +1402,7 @@ Example B (response 200)
 
 ## Master Lookup APIs
 
-### 4) GET /masters/races
+### 4) GET /races
 
 **Purpose:** active race options.
 
@@ -1420,7 +1420,7 @@ Example B (response 200)
 
 ---
 
-### 5) GET/masters/sexes
+### 5) GET/sexes
 
 **Purpose:** active sex-at-birth options.
 
@@ -1437,7 +1437,7 @@ Example B (response 200)
 ```
 
 
-### 6) GET/masters/units
+### 6) GET/units
 
 **Purpose:** active measurement units.
 
@@ -1470,7 +1470,7 @@ Example B (response 200)
 ```
 
 
-### 8) GET/masters/health_conditions
+### 8) GET/health_conditions
 
 **Purpose:** active health condition options.
 
@@ -1691,7 +1691,7 @@ CREATE INDEX IF NOT EXISTS idx_uhc_hc     ON "TRN_UserHealthCondition"("HealthCo
 ```
 
 
-4) GET/masters/races
+4) GET/races
 
 **SQL**
 
@@ -1706,7 +1706,7 @@ ORDER BY "RaceDisplayName" ASC, "RaceCode" ASC;
 ```
 
 
-5) GET/masters/sexes
+5) GET/sexes
 
 **SQL**
 
@@ -1722,7 +1722,7 @@ ORDER BY "SexDisplayName" ASC, "SexCode" ASC;
 
 ---
 
-6) GET/masters/units
+6) GET/units
 
 **SQL**
 
@@ -1738,7 +1738,7 @@ ORDER BY "UnitDisplayName" ASC, "UnitCode" ASC;
 
 ---
 
-7) GET/masters/measurement_systems
+7) GET/measurement_systems
 
 **SQL**
 
@@ -1755,7 +1755,7 @@ ORDER BY "MeasurementSystemDisplayName" ASC, "MeasurementSystemCode" ASC;
 ---
 
 
-8) GET/masters/health_conditions
+8) GET/health_conditions
 
 **SQL**
 

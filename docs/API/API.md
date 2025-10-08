@@ -4,7 +4,7 @@ This document explains som general considerations used and some things considere
 
 # Storage Media Flow
 
-This section explains how images are handled from upload to final storage in the backend.
+This section explains how images are handled from upload to final storage in the system.
 
 ## 1. Upload Stage
 - When a user uploads an image, the backend stores it in a **staging folder**.
@@ -31,7 +31,7 @@ This section explains how images are handled from upload to final storage in the
 - **Posting APIs** only deal with references (`assetId` / `tempUrl`) and final `imageUrl`.  
 - Users always see the final `imageUrl` after the posting is created or updated.
 
-
+<!-- 
 # Media Upload API — Team Responsibilities
 
 ## Frontend
@@ -54,20 +54,18 @@ This section explains how images are handled from upload to final storage in the
 3. Move the file from the **staging folder** into the **permanent posting folder**.
 4. Generate the final `imageUrl` and save it in the posting record.
 5. Return the posting with the permanent `imageUrl`.
-6. Remove the staging file (immediately or during later uploads) to free space.
+6. Remove the staging file (immediately or during later uploads) to free space. -->
 
 
-
-Understood. Below is the **full Markdown document with Sections 1–15 exactly as requested** — no extra commentary, no deviations, no Section 16.
 
 ---
 
-# Media Upload & Storage
+## Media Upload and Storage
 
 This section defines how media (e.g. posting images) is uploaded, stored, referenced, promoted to permanent storage, and cleaned up. It applies to both Frontend and Backend teams. 
 
 ---
-
+<!-- 
 ## 1. Storage Areas
 
 | Area                            | Purpose                                        | Example Path                                     |
@@ -205,7 +203,6 @@ https://cdn.example.com/postings/42/9101/steps-banner.png
 
 * Original filename preserved when safe.
 * Unsafe characters should be sanitized server-side.
-* Optional renaming pattern: `{assetId}.{ext}` or `{timestamp}_{originalName}`.
 
 ---
 
@@ -220,9 +217,199 @@ https://cdn.example.com/postings/42/9101/steps-banner.png
 | 5    | Backend promotes file             | `postings/{buyerId}/{postingId}/...` |
 | 6    | Temporary file deleted            | Staging cleaned                      |
 
+--- -->
+
+
+## Storage Media Flow
+
+1. **Upload (Staging Phase)**
+
+   * When a user selects an image, the frontend calls the Upload API.
+   * The backend stores the file in a temporary **staging directory**:
+     `tmp/{buyerId}/{assetId}/{fileName}`
+   * The backend returns `assetId` and `tempUrl` (for preview only).
+   * No posting is created or modified at this stage.
+
+2. **Form Preview**
+
+   * Frontend displays the image using `tempUrl`.
+   * Frontend stores only the `assetId` as part of form state.
+
+3. **Promotion on Posting Save (Create or Update)**
+
+   * When the posting is submitted, frontend sends the stored `assetId`.
+   * Backend verifies that staging folder belongs to the buyer.
+   * Backend promotes the image into permanent storage:
+     `postings/{buyerId}/{postingId}/{assetId}-{fileName}`
+   * Backend sets `imageUrl` in the posting record referencing the permanent file.
+   * Backend deletes the staged copy.
+
+4. **Replacing an Existing Image**
+
+   * Frontend uploads a new file → receives a new `assetId`.
+   * On update, frontend sends the new `assetId`.
+   * Backend promotes the new file and deletes the previous permanent file.
+   * The posting `imageUrl` now points to the new permanent file.
+
+5. **Removing an Image**
+
+   * On update, if the image must be removed entirely, frontend sends `imageAction: "REMOVE"`.
+   * Backend deletes the permanent file (or folder) and sets `imageUrl = null`.
+
 ---
 
-## How to handle errors for APIs:
+## Media Upload API — Team Responsibilities
+
+### Frontend Responsibilities
+
+1. When a user selects or drags an image:
+
+   * Call `POST /buyers/{buyerId}/assets/upload` with the raw file (`multipart/form-data`).
+2. Receive `{ assetId, tempUrl }` from the response.
+3. Immediately display the image preview using `tempUrl`.
+4. When saving or updating a posting:
+
+   * Include `"assetId": "<returnedId>"` in the body to attach or replace image.
+   * To remove an image, send `"imageAction": "REMOVE"` instead of `assetId`.
+5. Never send raw files to posting create or update API routes.
+
+### Backend Responsibilities — Upload Handling
+
+1. Authenticate and ensure `buyerId` in path matches authenticated user.
+
+2. Validate file type and size.
+
+3. Sanitize filename.
+
+4. Generate a unique `assetId` (e.g. UUID).
+
+5. Create staging directory: `tmp/{buyerId}/{assetId}/`.
+
+6. Write the file into this directory.
+
+7. Create a `meta.json` file in staging with:
+
+   ```json
+   {
+     "uploadedAt": "<ISO timestamp>",
+     "fileName": "<originalName>",
+     "bytes": <fileSize>,
+     "contentType": "<MIME type>"
+   }
+   ```
+
+8. Return `{ assetId, tempUrl, fileName, contentType, bytes, uploadedAt }`.
+
+### Backend Responsibilities — Posting Create/Update
+
+1. Accept body containing either:
+
+   * `assetId` → attach or replace image, or
+   * `imageAction: "REMOVE"` → delete image
+2. If `assetId` is provided:
+
+   * Verify `tmp/{buyerId}/{assetId}/` exists.
+   * Promote the staged file to permanent storage under:
+     `postings/{buyerId}/{postingId}/{assetId}-{fileName}`
+   * Update posting `imageUrl` with the new path.
+   * Delete the staging directory.
+3. If `imageAction: "REMOVE"`:
+
+   * Delete current permanent file (or entire posting folder if only one file is allowed).
+   * Set posting `imageUrl = null`.
+4. If neither `assetId` nor `imageAction` is provided:
+
+   * Leave image unchanged.
+
+---
+
+## Staging Metadata Structure
+
+Each staged upload directory must contain:
+
+**Path:**
+`tmp/{buyerId}/{assetId}/meta.json`
+
+**File Content:**
+
+```json
+{
+  "uploadedAt": "2025-10-07T12:34:56Z",
+  "fileName": "steps-banner.png",
+  "bytes": 183204,
+  "contentType": "image/png"
+}
+```
+
+This file is used exclusively for TTL (expiry) and quota-based cleanup.
+
+---
+
+## Staging Cleanup & TTL Policy
+
+1. **TTL Duration:** 24 hours.
+2. **Cleanup Triggers:** Per-`buyerId` cleanup must run before:
+
+   * Each new upload.
+   * Each posting create/update.
+3. **Cleanup Logic:**
+
+   * Compute `cutoff = nowUTC - TTL`.
+   * List all folders in `tmp/{buyerId}/`.
+   * For each folder:
+
+     * Read `uploadedAt` from `meta.json` (or folder mtime if unavailable).
+     * If `uploadedAt < cutoff`, delete the entire folder.
+4. **Quota Enforcement (after TTL deletions):**
+
+   * Maximum 10 staged assets or 50 MB per buyer.
+   * If limits are still exceeded after TTL removal, delete oldest folders until under the limit.
+5. **Failed Deletions:**
+
+   * If a file cannot be deleted (e.g. locked), create a `.tombstone` marker and retry on next cleanup trigger.
+
+---
+
+## Example Scenarios
+
+### Scenario 1: Upload → Save → Clean
+
+* Day 1, 10:00: User uploads `banner.png`
+
+  * Stored at `tmp/42/ast_a1/banner.png`, returned `assetId=ast_a1`
+* Day 1, 10:05: User submits posting with `assetId=ast_a1`
+
+  * Promoted to `postings/42/9101/ast_a1-banner.png`
+  * `imageUrl` set accordingly
+  * `tmp/42/ast_a1/` deleted immediately
+
+### Scenario 2: Multiple Uploads Before Save
+
+* User uploads `banner.png` → `ast_a1`
+* User uploads again (new image) → `ast_a2`
+* Frontend discards `ast_a1` and only sends `ast_a2` on save
+* Promotion uses `ast_a2`; `ast_a1` remains in staging
+* On next upload or save, TTL/Quota logic deletes `ast_a1`
+
+### Scenario 3: Image Replacement After Posting Exists
+
+* Posting currently has `imageUrl = .../ast_a1-banner.png`
+* User uploads a new file → receives `ast_b2`
+* Frontend sends `assetId=ast_b2` in update
+* Backend promotes `ast_b2` to permanent path
+* Backend deletes old permanent `ast_a1-banner.png`
+* Staging for `ast_b2` is deleted after promotion
+
+### Scenario 4: Removing Image
+
+* Posting currently has `imageUrl = .../ast_a1-banner.png`
+* Frontend sends `"imageAction": "REMOVE"`
+* Backend deletes the permanent file
+* Posting `imageUrl` becomes `null`
+
+---
+
+# How to handle errors for APIs:
 
 
 Every request must:

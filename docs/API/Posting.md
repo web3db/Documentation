@@ -1,179 +1,105 @@
 # Web3Health Posting Overview
+# 1. What is a Posting?
 
-## 1. What is a Posting?
+A posting is created by a user acting in the buyer role.
+It represents a study, research request, or data opportunity that participants can later view or apply to.
 
-A **posting** is created by a user acting in the **buyer** role.  
-It represents a study, research request, or data opportunity that participants (users) can later view or apply to.
+A posting captures the essential information needed for marketplace discovery and filtering:
 
-A posting contains everything needed for discovery and filtering in the marketplace:
-
-- _Who_ created it
-- _What_ data is needed
-- _Who_ is eligible
-- _When_ it is open
-- _How_ the data will be accessed
-- _How long_ the data window should cover
-- _What purpose the data will be used for_
-- _What rewards or compensation may be offered_
-
-
+* Who created it (owner = buyer user)
+* What data types (metrics) are requested
+* Who is eligible (age, health conditions)
+* When it is visible (open/close timestamps and lifecycle status)
+* How the data may be used or viewed (one or more view policies)
+* How much historical data is required (days)
+* What reward type and value are offered
+* How it is presented (title, summary, description, tags, image)
 
 ---
 
-## 2. What Information Does a Posting Store?
+# 2. What Information Does a Posting Store?
 
-A posting is composed of the following groups of information:
+The fields and relationships below match the database structure.
 
-### A. Basic Details
+## 2.1 Basic Details (MST_Posting)
 
-- Title
-- Short summary
-- Full description
-- Status (Draft, Open, Paused, Closed, or Archived)
+* Title
+* Summary (short teaser)
+* Description (full details)
+* PostingStatusId → MST_PostingStatus (status code and display name are read from the master)
 
-These fields define how the posting will be shown to users in the marketplace.
+## 2.2 Ownership (MST_Posting)
 
----
+* BuyerUserId — owner of the posting (foreign key to user).
+  There is no separate buyer table; ownership is tied to the user record.
 
-### B. Ownership
+## 2.3 Visibility Window (MST_Posting)
 
-- The posting is always owned by the user who creates it (the "buyer" identity).
-- There is no separate buyer table; ownership is tied to the user record.
+* ApplyOpenAt — when the posting becomes visible/accepting interest
+* ApplyCloseAt — when visibility/acceptance ends
+* Visibility also respects lifecycle status (for example, CLOSED or ARCHIVED are not shown).
 
----
+## 2.4 Historical Data Window Requirement (MST_Posting)
 
-### C. Visibility Window
+* DataCoverageDaysRequired — single integer number of days of historical data the buyer expects.
+  There is no relative vs fixed date-range model and no per-metric window in the schema.
 
-Postings must specify:
+## 2.5 Metrics Requested (TRN_PostingMetric → MST_Metric)
 
-- When they become visible or active (open date)
-- When visibility or acceptance closes (close date)
+* A posting lists one or more metric IDs via TRN_PostingMetric.
+  The schema does not include per-metric required/optional flags or granularity settings.
 
-If these dates are not set, visibility depends purely on the status.
+## 2.6 Eligibility (MST_Posting + TRN_PostingHealthCondition → MST_HealthCondition)
 
----
+* MinAge (nullable) on the posting
+* Zero or more health conditions linked through TRN_PostingHealthCondition
 
-### D. Data Window (What Time Range the Buyer Wants)
+## 2.7 View Policies & Data Usage (TRN_PostingViewPolicy → MST_ViewPolicy)
 
-Each posting defines how far back the requested data should come from, using one of two modes:
+* A posting can reference one or more view policies.
+  These are returned by the API as an array of IDs.
 
-1. **Relative window**  
-   Example: “Last 7 days”
+## 2.8 Rewards or Compensation (MST_Posting → MST_RewardType)
 
-2. **Fixed window**  
-   Example: “From January 1 to January 15”
+* RewardTypeId (foreign key to MST_RewardType)
+* RewardValue (nullable numeric)
 
-This determines which historical time range is relevant when the data is eventually shared.
+## 2.9 Media & Discovery Aids (TRN_PostingImage, TRN_PostingTag)
 
----
+* Image: TRN_PostingImage holds one image row per posting in this version.
+  If missing or null, the API must return a default image URL so clients never receive an empty image.
+* Tags: free-text keywords stored in TRN_PostingTag.
 
-### E. Metrics Requested
+## 2.10 Lifecycle & Soft Delete (MST_Posting)
 
-A posting must list one or more health metrics it is interested in.
-
-Examples:
-
-- Steps
-- Heart Rate
-- Sleep Minutes
-- Active Energy (kcal)
-- Distance
-- Floors Climbed
-
-For each metric, the posting can specify:
-
-- Whether the metric is required
-- The minimum data granularity (minute, hour, day, etc.)
-
-Internally, each metric uses a **canonical unit** (e.g., BPM, COUNT, KCAL, METERS).
+* IsActive indicates soft deletion.
+  Soft-deleted postings (IsActive = FALSE) must not appear in listings or details for normal buyers.
 
 ---
 
-### F. Eligibility
+# 3. How Postings Are Used
 
-A posting can narrow the target audience by:
-
-- Minimum age
-- Required health conditions (e.g., Type 2 Diabetes)
-
-These requirements may later be used for filtering, matching, or recommendation.
+1. A buyer creates a posting with the fields above.
+2. When status and dates allow (for example, status OPEN and within ApplyOpenAt/ApplyCloseAt), the posting appears in marketplace feeds.
+3. Users can discover and review the posting. Application, consent, or data-sharing flows are separate and not covered here.
 
 ---
 
-### G. View Policy & Data Usage Purpose
+# 4. Example (Conceptual)
 
-If the posting will eventually allow data to be viewed or analyzed, it can reference a **view policy**.
-
-A view policy can define things like:
-
-- The data will only be used for the duration of the study
-- Whether data can be exported
-- Whether the data will be used for research
-- Whether the data may be used to train or refine models
-- How data access is controlled or limited (session time, rate limits, etc.)
-
-These policies are stored separately and can be reused across postings.
-
----
-
-### H. Rewards or Compensation 
-
-A posting must indicate what participants receive in return, for example:
-
-- Tokens
-- Points
-- Credits
-- Vouchers
-- Monetary rewards
-
-This is informational at the posting stage and may connect to a separate rewards table later.
-
----
-
-## I. Media and Discovery Aids
-
-To make postings more visible and understandable:
-
-- Main image URL
-- Tags or keywords for filtering
-
-These improve how postings appear in search results and marketplace views.
-
----
-
-## 3. How Postings Are Used
-
-1. A buyer creates a posting with the details above.
-2. Once the posting is **Open**, it can appear in the marketplace feed.
-3. Users will later be able to view postings and decide whether to apply.
-
-No data sharing, approval, or consent occurs yet — this part is only about defining the opportunity.
-
----
-
-## 4. Example (Conceptual Format)
-
-Here is a description of a posting:
-
-- **Title:** 7-Day Activity Snapshot
-- **Status:** Draft
-- **Summary:** Looking for daily steps and hourly heart rate data
-- **Description:** This study requests data for the last 7 days covering steps and heart rate.
-- **Visibility:** Open on Oct 8, 2025, Closes on Oct 31, 2025
-- **Data Window:** Last 7 days
-- **Metrics:**
-  - STEPS (required, daily)
-  - HR (required, hourly)
-- **Eligibility:** Minimum age 18, must have T2D
-- **View Policy & Usage Terms:**
-  - Data used only for the study duration
-  - Export not allowed
-  - Used for research
-  - May be used to improve or train health models
-- **Rewards:** 500 points
-- **Media:** Main image and tags like “steps”, “heartrate”, “last7d”
-
-This is the level of detail a posting captures before any participant takes action.
+* Title: Heart Rate Variability Study
+* Status: OPEN (resolved from PostingStatusId → MST_PostingStatus)
+* Summary: Daily HR and HRV for 30 days
+* Description: Seeking participants to share HR and HRV data for one month
+* Visibility: Open on 2025-10-01, closes on 2025-10-31
+* Data coverage required: 30 days
+* Eligibility: Minimum age 18; Health conditions: Type 2 Diabetes
+* Metrics: HR, HRV (linked via TRN_PostingMetric to MST_Metric)
+* View policies: Research No Export; Model Training Allowed (multiple policies via TRN_PostingViewPolicy)
+* Rewards: Points (RewardTypeId → MST_RewardType), value 1200
+* Media: One main image (TRN_PostingImage) with default image used if none present
+* Tags: hr, hrv, month
+* Soft delete: IsActive = TRUE indicates the posting is active and listed
 
 ---
 

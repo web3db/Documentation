@@ -1,6 +1,7 @@
 # Web3Health Posting Overview
 # 1. What is a Posting?
 
+
 A posting is created by a user acting in the buyer role.
 It represents a study, research request, or data opportunity that participants can later view or apply to.
 
@@ -103,7 +104,9 @@ The fields and relationships below match the database structure.
 
 ---
 
-## Database Tables for Postings
+## Database Tables
+
+
 
 Below are the tables required to support posting creation, management, and future expansion (including rewards, tags, and multiple images).
 
@@ -164,11 +167,61 @@ Why it's needed: Supports media-rich listings and better presentation in the UI.
 This defines all database tables required for the Posting feature.  
 Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting-specific data.
 
+
+---
+## Contents
+
+### Overview
+- [1. What is a Posting?](#1-what-is-a-posting)
+- [2. What Information Does a Posting Store?](#2-what-information-does-a-posting-store)
+- [3. How Postings Are Used](#3-how-postings-are-used)
+- [4. Example (Conceptual)](#4-example-conceptual)
+
+### Database model & tables
+- [Database Tables](#database-tables)
+  - [MST_PostingStatus](#mst_postingstatus)
+  - [MST_ViewPolicy](#mst_viewpolicy)
+  - [MST_Metric](#mst_metric)
+  - [MST_HealthCondition](#mst_healthcondition)
+  - [MST_RewardType](#mst_rewardtype)
+  - [MST_Posting](#mst_posting)
+  - [TRN_PostingMetric](#trn_postingmetric)
+  - [TRN_PostingHealthCondition](#trn_postinghealthcondition)
+  - [TRN_PostingViewPolicy](#trn_postingviewpolicy)
+  - [TRN_PostingTag](#trn_postingtag)
+  - [TRN_PostingImage](#trn_postingimage)
+
+### Posting APIs (buyer scope)
+- [Create — POST /buyers/{buyerId}/postings_create](#create-post-buyersbuyeridpostings_create)
+- [List — GET /buyers/{buyerId}/postings_list](#list-get-buyersbuyeridpostings_list)
+- [Detail — GET /buyers/{buyerId}/postings_detail/{postingId}](#detail-get-buyersbuyeridpostings_detailpostingid)
+- [Update — PATCH /buyers/{buyerId}/postings_update/{postingId}](#update-patch-buyersbuyeridpostings_updatepostingid)
+- [Delete — DELETE /buyers/{buyerId}/postings_delete/{postingId}](#delete-delete-buyersbuyeridpostings_deletepostingid)
+
+### Master / Dropdown APIs
+- [GET /metrics](#get-metrics)
+- [GET /health_conditions](#get-health_conditions)
+- [GET /posting_statuses](#get-posting_statuses)
+- [GET /reward_types](#get-reward_types)
+- [GET /view_policies](#get-view_policies)
+
+### Backend implementation & SQL
+- [Backend: Create](#backend-create)
+- [Backend: List](#backend-list)
+- [Backend: Detail](#backend-detail)
+- [Backend: Update](#backend-update)
+- [Backend: Delete](#backend-delete)
+- [Backend: Metrics](#backend-metrics)
+- [Backend: Health Conditions](#backend-health-conditions)
+- [Backend: Posting Statuses](#backend-posting-statuses)
+- [Backend: Reward Types](#backend-reward-types)
+- [Backend: View Policies](#backend-view-policies)
+
 ---
 
 # Master Tables
 
-## 1. MST_PostingStatus
+### MST_PostingStatus
 
 **Purpose**: Lifecycle states for postings.
 
@@ -249,7 +302,7 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
 ]
 ```
 
-## 2. MST_ViewPolicy
+### MST_ViewPolicy
 
 **Purpose**: Defines reusable data access and usage policies.
 
@@ -335,7 +388,7 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
 ```
 
 
-## 3. MST_HealthCondition
+### MST_HealthCondition
 
 **Purpose**: Catalog of health conditions for users and posting eligibility.(Same as from the user file)
 
@@ -414,7 +467,7 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
 ]
 
 ```
-## 4. MST_Metric
+### MST_Metric
 
 **Purpose**: Catalog of requestable health metrics.
 
@@ -530,7 +583,7 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
 ]
 ```
 
-## 5. MST_RewardType
+### MST_RewardType
 
 **Purpose**: Defines available reward mechanisms.
 
@@ -607,7 +660,7 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
 
 # Posting Master Table
 
-## MST_Posting
+### MST_Posting
 
 **Purpose**: Main posting record with audit fields.
 
@@ -907,6 +960,7 @@ Conventions:
 ---
 
 ## 1. Create Posting
+## Create: POST /buyers/{buyerId}/postings_create
 
 **POST** `/buyers/{buyerId}/postings_create`
 
@@ -970,6 +1024,7 @@ Create a new posting under the specified buyer. Defaults to `DRAFT` if no status
 ---
 
 ## 2. List Buyer Postings
+## List: GET /buyers/{buyerId}/postings_list
 
 **GET** `/buyers/{buyerId}/postings_list`
 
@@ -1130,6 +1185,7 @@ Includes one example item per status: `DRAFT`, `OPEN`, `PAUSED`, `CLOSED`, `ARCH
 ```
 
 ## 3. Get Posting by ID
+## Detail: GET /buyers/{buyerId}/postings_detail/{postingId}
 
 **GET** `/buyers/{buyerId}/postings_detail/{postingId}`
 
@@ -1174,6 +1230,7 @@ Fetch full details of a specific posting owned by the buyer.
 ---
 
 ## 4. Update Posting
+## Update: PATCH /buyers/{buyerId}/postings_update/{postingId}
 
 **PATCH** `/buyers/{buyerId}/postings_update/{postingId}`
 
@@ -1254,6 +1311,7 @@ Update mutable fields of a posting. Arrays provided replace the full set; omitte
 ---
 
 ## 5. Delete Posting (Soft Delete)
+## Delete: DELETE /buyers/{buyerId}/postings_delete/{postingId}
 
 **DELETE** `/buyers/{buyerId}/postings_delete/{postingId}`
 
@@ -1275,7 +1333,7 @@ Soft-delete a posting by setting `isActive=false`. Soft-deleted postings are not
 
 # Master Data APIs
 
-## GET /masters/metrics
+## GET /metrics
 
 **Purpose**
 List active metrics available for selection.
@@ -1340,7 +1398,7 @@ List active metrics available for selection.
 
 ---
 
-## GET /masters/health_conditions
+## GET /health_conditions
 
 **Purpose**
 List active health conditions (same structure as used in user schema).
@@ -1386,7 +1444,7 @@ List active health conditions (same structure as used in user schema).
 
 ---
 
-## GET /masters/posting_statuses
+## GET /posting_statuses
 
 **Purpose**
 List allowed posting statuses.
@@ -1432,7 +1490,7 @@ List allowed posting statuses.
 
 ---
 
-## GET /masters/reward_types
+## GET /reward_types
 
 **Purpose**
 List reward types.
@@ -1472,7 +1530,7 @@ List reward types.
 
 ---
 
-## GET /masters/view_policies
+## GET /view_policies
 
 **Purpose**
 List view policies (defined as label/description only).
@@ -1506,6 +1564,7 @@ List view policies (defined as label/description only).
 
 ## Logic and snippets that will help with development
 ### Create Posting API (`POST /buyers/{buyerId}/postings_create`)
+## Backend: Create
 
 ## Purpose
 
@@ -1782,6 +1841,7 @@ SET ImageUrl = EXCLUDED.ImageUrl;
 
 
 ## GET Posting API `/buyers/{buyerId}/postings_list`
+## Backend: List
 
 ### Purpose
 
@@ -2061,7 +2121,7 @@ Return a paginated list of postings owned by a buyer, with optional filters (sta
 
 ---
 
-### Sorting Rules (Strict Whitelist)
+### Sorting Rules
 
 **Allowed fields:** `createdOn`, `modifiedOn`, `applyOpenAt`, `applyCloseAt`, `title`, `postingStatusId`, `postingId`
 **Rules:**
@@ -2425,7 +2485,7 @@ ORDER BY postingStatusId;
 
 ---
 
-###  Dev Wiring Notes (Backend)
+### Notes (Backend)
 
 * Normalize `statusIds` early (dedupe).
 * Build the ORDER BY string with the whitelist builder; never trust raw user input.
@@ -2450,11 +2510,8 @@ ORDER BY postingStatusId;
 
 ---
 
-Perfect—crystal clear. Let’s start with the lean, developer-friendly skeleton for the **detail** API, exactly in the order you asked: **Path → example URL calls → example success output → error cases**. (Same default-image rule as list: if no image, return the platform default URL.)
-
----
-
 # Get a particular Posting API
+## Backend: Detail
 
 ```
 GET /buyers/{buyerId}/postings_detail/{postingId}
@@ -2868,7 +2925,7 @@ WHERE p.buyerUserId = $1
 ---
 
 # PATCH `/buyers/{buyerId}/postings_update/{postingId}`
-
+## Backend: Update
 ## 1. Purpose
 
 Update a posting owned by a buyer. Any subset of fields may be provided. Array fields are **full-set replacements** (omit to leave unchanged). Image may be replaced or removed. The endpoint enforces buyer scope and soft-delete rules.
@@ -3296,8 +3353,6 @@ WHERE p.postingId = $2 AND p.buyerUserId = $3;  -- postingId, buyerId
 
 ## 5) Manual test harness (SQL Server–style variables, for quick local validation)
 
-> This is **just a developer aid** to understand variable passing and execution order. Your production code should use proper bind parameters (as shown above).
-
 ```sql
 -- Developer harness (T-SQL style variables) - illustrative only
 DECLARE @BuyerId INT          = 42;
@@ -3392,9 +3447,7 @@ WHERE p.postingId = @PostingId AND p.buyerUserId = @BuyerId;
 
 ---
 
-## 6) Optional PL/pgSQL example (single block, bind-friendly)
-
-> Useful if you prefer to package the update in one DB routine. Parameters are nullable to indicate “no change”.
+## 6) Optional PL/pgSQL example
 
 ```sql
 CREATE OR REPLACE FUNCTION api_update_posting(
@@ -3615,7 +3668,7 @@ WHERE p.postingId=9102 AND p.buyerUserId=42;
 ---
 
 # DELETE Posting API `/buyers/{buyerId}/postings_delete/{postingId}`
-
+## Backend: Delete
 ## Purpose
 
 Soft-delete a posting owned by a buyer by setting `isActive = FALSE`. The record remains in the database for audit/history; all list/detail endpoints must exclude soft-deleted postings.
@@ -3761,7 +3814,7 @@ Soft-delete a posting owned by a buyer. Soft delete means the record remains in 
 > Assumptions:
 >
 > * Table: `MST_Posting(postingId PK, buyerUserId, isActive, modifiedBy, modifiedOn[, deletedOn])`.
-> * If you **don’t** have `deletedOn`, just omit it in the `UPDATE` and compute `deletedAt` in the `SELECT`.
+> * We **don’t** have `deletedOn`, just omit it in the `UPDATE` and compute `deletedAt` in the `SELECT`.
 
 ```sql
 -- Inputs (binds): $1 = postingId (BIGINT), $2 = buyerId (BIGINT)
@@ -3792,7 +3845,7 @@ SELECT
   p.postingId,
   p.buyerUserId AS buyerId,
   p.isActive,
-  COALESCE(p.deletedOn, p.modifiedOn) AS deletedAt   -- if no deletedOn, use modifiedOn or NOW()
+  COALESCE(p.modifiedOn) AS deletedAt   -- you can even send now() here
 FROM MST_Posting p
 WHERE p.postingId = $1 AND p.buyerUserId = $2;
 
@@ -3918,6 +3971,7 @@ WHERE postingId = @PostingId AND buyerUserId = @BuyerId;
 
 
 # 1) `/metrics` — GET
+## Backend: Metrics
 
 ## 1.1 Purpose
 
@@ -3972,8 +4026,8 @@ ORDER BY "DisplayName" ASC, "Code" ASC;
 
 ---
 
-# 2) `/health_conditions` — GET (Exact same as we made in users, written her for referance)
-
+# 2) `/health_conditions` — GET (Exact same as we made in users, written her for referance, do not reimplement if already exist)
+## Backend: Health Conditions
 ## 2.1 Purpose
 
 Return **active** health conditions for eligibility dropdowns.
@@ -4025,6 +4079,7 @@ ORDER BY "DisplayName" ASC, "Code" ASC;
 ---
 
 # 3) `/posting_statuses` — GET
+## Backend: Posting Statuses
 
 ## 3.1 Purpose
 
@@ -4078,6 +4133,7 @@ ORDER BY "DisplayName" ASC, "Code" ASC;
 ---
 
 # 4) `/reward_types` — GET
+## Backend: Reward Types
 
 ## 4.1 Purpose
 
@@ -4130,6 +4186,7 @@ ORDER BY "DisplayName" ASC, "Code" ASC;
 ---
 
 # 5) `/view_policies` — GET
+## Backend: View Policies
 
 ## 5.1 Purpose
 

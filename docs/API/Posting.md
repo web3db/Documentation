@@ -192,7 +192,7 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
   - [TRN_PostingImage](#trn_postingimage)
 
 ### Posting APIs (buyer scope)
-- [Create — POST /buyers/{buyerId}/postings_create](#create-post-buyersbuyeridpostings_create)
+- [Create — POST /buyers_postings_create/{buyerId}](#create-post-buyers_postings_createbuyerid)
 - [List — GET /buyers/{buyerId}/postings_list](#list-get-buyersbuyeridpostings_list)
 - [Detail — GET /buyers/{buyerId}/postings_detail/{postingId}](#detail-get-buyersbuyeridpostings_detailpostingid)
 - [Update — PATCH /buyers/{buyerId}/postings_update/{postingId}](#update-patch-buyersbuyeridpostings_updatepostingid)
@@ -960,9 +960,11 @@ Conventions:
 ---
 
 ## 1. Create Posting
-## Create: POST /buyers/{buyerId}/postings_create
+## Create: POST /buyers_postings_create/{buyerId}
 
-**POST** `/buyers/{buyerId}/postings_create`
+<!-- **POST** `/buyers/{buyerId}/postings_create` -->
+**POST** `/buyers_postings_create/{buyerId}`
+
 
 **Purpose**  
 Create a new posting under the specified buyer. Defaults to `DRAFT` if no status is provided.
@@ -1024,9 +1026,11 @@ Create a new posting under the specified buyer. Defaults to `DRAFT` if no status
 ---
 
 ## 2. List Buyer Postings
-## List: GET /buyers/{buyerId}/postings_list
+## List: GET /buyers_postings_list/{buyerId}
 
-**GET** `/buyers/{buyerId}/postings_list`
+<!-- **GET** `/buyers/{buyerId}/postings_list` -->
+**GET** `/buyers_postings_list/{buyerId}`
+
 
 **Purpose**
 List postings owned by a buyer with filtering and pagination.
@@ -1185,9 +1189,11 @@ Includes one example item per status: `DRAFT`, `OPEN`, `PAUSED`, `CLOSED`, `ARCH
 ```
 
 ## 3. Get Posting by ID
-## Detail: GET /buyers/{buyerId}/postings_detail/{postingId}
+## Detail: GET /buyers_postings_detail/{buyerId}/{postingId}
 
-**GET** `/buyers/{buyerId}/postings_detail/{postingId}`
+<!-- **GET** `/buyers/{buyerId}/postings_detail/{postingId}` -->
+**GET** `/buyers_postings_detail/{buyerId}/{postingId}`
+
 
 **Purpose**
 Fetch full details of a specific posting owned by the buyer.
@@ -1230,9 +1236,9 @@ Fetch full details of a specific posting owned by the buyer.
 ---
 
 ## 4. Update Posting
-## Update: PATCH /buyers/{buyerId}/postings_update/{postingId}
+## Update: PATCH /buyers_postings_update/{buyerId}/{postingId}
 
-**PATCH** `/buyers/{buyerId}/postings_update/{postingId}`
+**PATCH** `/buyers_postings_update/{buyerId}/{postingId}`
 
 **Purpose**
 Update mutable fields of a posting. Arrays provided replace the full set; omitted arrays remain unchanged.
@@ -1311,9 +1317,9 @@ Update mutable fields of a posting. Arrays provided replace the full set; omitte
 ---
 
 ## 5. Delete Posting (Soft Delete)
-## Delete: DELETE /buyers/{buyerId}/postings_delete/{postingId}
+## Delete: DELETE /buyers_postings_delete/{buyerId}/{postingId}
 
-**DELETE** `/buyers/{buyerId}/postings_delete/{postingId}`
+**DELETE** `/buyers_postings_delete/{buyerId}/{postingId}`
 
 **Purpose**
 Soft-delete a posting by setting `isActive=false`. Soft-deleted postings are not returned in list results.
@@ -1563,7 +1569,7 @@ List view policies (defined as label/description only).
 ```
 
 ## Logic and snippets that will help with development
-### Create Posting API (`POST /buyers/{buyerId}/postings_create`)
+### Create Posting API (`POST /buyers_postings_create/{buyerId}`)
 ## Backend: Create
 
 ## Purpose
@@ -1840,7 +1846,7 @@ SET ImageUrl = EXCLUDED.ImageUrl;
 ---
 
 
-## GET Posting API `/buyers/{buyerId}/postings_list`
+## GET Posting API `/buyers_postings_list/{buyerId}`
 ## Backend: List
 
 ### Purpose
@@ -1851,7 +1857,7 @@ Return a paginated list of postings owned by a buyer, with optional filters (sta
 
 ### Path
 
-`/buyers/{buyerId}/postings_list`
+`/buyers_postings_list/{buyerId}`
 
 * `buyerId` (path): integer. Must match the authenticated buyer.
 
@@ -1889,19 +1895,19 @@ Return a paginated list of postings owned by a buyer, with optional filters (sta
 ### Path Examples
 
 * No params (defaults)
-  `/buyers/42/postings_list`
+  `/buyers_postings_list/42`
 
 * Filter by two statuses (CSV), include a tag, set page/pageSize/sort
-  `/buyers/42/postings_list?statusIds=2,3&tag=hr&page=1&pageSize=5&sort=createdOn:desc,title:asc`
+  `/buyers_postings_list/42?statusIds=2,3&tag=hr&page=1&pageSize=5&sort=createdOn:desc,title:asc`
 
 * Same status filter using repeated params
-  `/buyers/42/postings_list?statusIds=2&statusIds=3`
+  `/buyers_postings_list/42?statusIds=2&statusIds=3`
 
 * Ask for status counts (useful for UI tabs)
-  `/buyers/42/postings_list?includeStatusCounts=true`
+  `/buyers_postings_list/42?includeStatusCounts=true`
 
 * Pagination to page 3 with a different sort
-  `/buyers/42/postings_list?page=3&pageSize=20&sort=title:asc,postingId:asc`
+  `/buyers_postings_list/42?page=3&pageSize=20&sort=title:asc,postingId:asc`
 
 ---
 
@@ -2093,7 +2099,7 @@ Return a paginated list of postings owned by a buyer, with optional filters (sta
 
 ### Endpoint Summary
 
-**Method/Path:** `GET /buyers/{buyerId}/postings_list`
+**Method/Path:** `GET /buyers_postings_list/{buyerId}`
 **Purpose:** Return a paginated list of postings owned by a buyer with optional filters (`statusIds`, `tag`), strict whitelisted sorting, and optional per-status counts for UI tabs.
 **Image guarantee:** If a posting has no image, the API must return a **default** image URL (e.g., `https://cdn.example.com/defaults/posting-cover.png`).
 
@@ -2497,15 +2503,15 @@ ORDER BY postingStatusId;
 ### Examples (Requests → Behavior)
 
 1. **Default**
-   `GET /buyers/42/postings_list`
+   `GET /buyers_postings_list/42`
    → newest `createdOn`, `page=1`, `pageSize=10`.
 
 2. **Filter & sort**
-   `GET /buyers/42/postings_list?statusIds=2,3&tag=hr&page=1&pageSize=5&sort=createdOn:desc,title:asc`
+   `GET /buyers_postings_list/42?statusIds=2,3&tag=hr&page=1&pageSize=5&sort=createdOn:desc,title:asc`
    → filters applied, stable sort with `postingId` appended.
 
 3. **Counts for tabs**
-   `GET /buyers/42/postings_list?includeStatusCounts=true`
+   `GET /buyers_postings_list/42?includeStatusCounts=true`
    → returns `statusCounts` independent of `statusIds`.
 
 ---
@@ -2633,7 +2639,7 @@ GET /buyers/42/postings_detail/9105
 ---
 
 ### Backend implementation guide
-`GET /buyers/{buyerId}/postings_detail/{postingId}` —list endpoint.
+`GET /buyers_postings_detail/{buyerId}/{postingId}` —list endpoint.
 
 # A) Execution Logic (Server-Side)
 
@@ -2924,7 +2930,7 @@ WHERE p.buyerUserId = $1
 
 ---
 
-# PATCH `/buyers/{buyerId}/postings_update/{postingId}`
+# PATCH `/buyers_postings_update/{buyerId}/{postingId}`
 ## Backend: Update
 ## 1. Purpose
 
@@ -2934,7 +2940,7 @@ Update a posting owned by a buyer. Any subset of fields may be provided. Array f
 
 ## 2. Method & Path
 
-**PATCH** `/buyers/{buyerId}/postings_update/{postingId}`
+**PATCH** `/buyers_postings_update/{buyerId}/{postingId}`
 
 Path parameters:
 
@@ -2946,11 +2952,11 @@ Path parameters:
 ## 3. URL Examples
 
 * Update title and status
-  `/buyers/42/postings_update/9102`
+  `/buyers_postings_update/42/9102`
 * Replace arrays and close date
-  `/buyers/42/postings_update/9103`
+  `/buyers_postings_update/42/9103`
 * Remove image
-  `/buyers/42/postings_update/9104`
+  `/buyers_postings_update/42/9104`
 
 ---
 
@@ -3107,7 +3113,7 @@ Updatable fields:
 * Response always returns a non-null `imageUrl` (actual or default).
 * Timestamps in responses are ISO8601 (UTC).
 
-# Backend Implementation Notes — PATCH `/buyers/{buyerId}/postings_update/{postingId}`
+# Backend Implementation Notes — PATCH `/buyers_postings_update/{buyerId}/{postingId}`
 
 ## 1) What the backend must do (server-side flow)
 
@@ -3667,7 +3673,7 @@ WHERE p.postingId=9102 AND p.buyerUserId=42;
 
 ---
 
-# DELETE Posting API `/buyers/{buyerId}/postings_delete/{postingId}`
+# DELETE Posting API `/buyers_postings_delete/{buyerId}/{postingId}`
 ## Backend: Delete
 ## Purpose
 
@@ -3675,7 +3681,7 @@ Soft-delete a posting owned by a buyer by setting `isActive = FALSE`. The record
 
 ---
 
-# DELETE poting API`/buyers/{buyerId}/postings_delete/{postingId}`
+# DELETE poting API`/buyers_postings_delete/{buyerId}/{postingId}`
 
 ## 1) Purpose
 
@@ -3685,7 +3691,7 @@ Soft-delete a posting owned by a buyer. Soft delete means the record remains in 
 
 ## 2) Method & Path
 
-**DELETE** `/buyers/{buyerId}/postings_delete/{postingId}`
+**DELETE** `/buyers_postings_delete/{buyerId}/{postingId}`
 
 **Path params**
 
@@ -3707,13 +3713,13 @@ Soft-delete a posting owned by a buyer. Soft delete means the record remains in 
 ## 4) Example Requests (URLs)
 
 * Default:
-  `DELETE /buyers/42/postings_delete/9102`
+  `DELETE /buyers_postings_delete/42/9102`
 
 * Wrong buyer → `403`:
-  `DELETE /buyers/99/postings_delete/9102` (while authenticated as 42)
+  `DELETE /buyers_postings_delete/92/9102` (while authenticated as 42)
 
 * Nonexistent posting → `404`:
-  `DELETE /buyers/42/postings_delete/999999`
+  `DELETE /buyers_postings_delete/42/999999`
 
 ---
 
@@ -3950,11 +3956,11 @@ WHERE postingId = @PostingId AND buyerUserId = @BuyerId;
 
 | Step | Call                                     | Expected                                                       |
 | ---- | ---------------------------------------- | -------------------------------------------------------------- |
-| 1    | `GET /buyers/42/postings_detail/9102`    | `200 OK` (exists, active)                                      |
-| 2    | `DELETE /buyers/42/postings_delete/9102` | `200 OK` + `{ postingId, buyerId, isActive:false, deletedAt }` |
-| 3    | `GET /buyers/42/postings_detail/9102`    | `404 Not Found`                                                |
-| 4    | `GET /buyers/42/postings_list`           | Posting **absent** from `items`                                |
-| 5    | `DELETE /buyers/42/postings_delete/9102` | `200 OK` + same minimal JSON (idempotent)                      |
+| 1    | `GET /buyers_postings_detail/42/9102`    | `200 OK` (exists, active)                                      |
+| 2    | `DELETE /buyers_postings_delete/42/9102` | `200 OK` + `{ postingId, buyerId, isActive:false, deletedAt }` |
+| 3    | `GET /buyers_postings_detail/42/9102`    | `404 Not Found`                                                |
+| 4    | `GET /buyers_postings_list/42`           | Posting **absent** from `items`                                |
+| 5    | `DELETE /buyers_postings_delete/42/9102` | `200 OK` + same minimal JSON (idempotent)                      |
 
 ---
 

@@ -193,10 +193,11 @@ Masters (`MST_`) include audit fields. Transaction (`TRN_`) tables store posting
 
 ### Posting APIs (buyer scope)
 - [Create — POST /buyers_postings_create/{buyerId}](#create-post-buyers_postings_createbuyerid)
-- [List — GET /buyers/{buyerId}/postings_list](#list-get-buyersbuyeridpostings_list)
-- [Detail — GET /buyers/{buyerId}/postings_detail/{postingId}](#detail-get-buyersbuyeridpostings_detailpostingid)
-- [Update — PATCH /buyers/{buyerId}/postings_update/{postingId}](#update-patch-buyersbuyeridpostings_updatepostingid)
-- [Delete — DELETE /buyers/{buyerId}/postings_delete/{postingId}](#delete-delete-buyersbuyeridpostings_deletepostingid)
+- [List — GET /buyers_postings_list/{buyerId}](#list-get-buyers_postings_listbuyerid) 
+- [Detail — GET /buyers_postings_detail/{buyerId}/{postingId}](#detail-get-buyers_postings_detailbuyeridpostingid) 
+- [Update — PATCH /buyers_postings_update/{buyerId}/{postingId}](#update-patch-buyers_postings_updatebuyeridpostingid) 
+- [Delete — DELETE /buyers_postings_delete/{buyerId}/{postingId}](#delete-delete-buyers_postings_deletebuyeridpostingid)
+
 
 ### Master / Dropdown APIs
 - [GET /metrics](#get-metrics)
@@ -930,20 +931,18 @@ The API represents these as an array of integers:
 
 # Posting APIs (Buyer Scope)
 
-
 | Endpoint                                        | Method | Purpose                                                                                                                                       |
 | ----------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/buyers/{buyerId}/postings_create`             | POST   | Create a new posting for the specified buyer, inserting core record plus metrics, view policies, optional health conditions, tags, and image. |
-| `/buyers/{buyerId}/postings_list`               | GET    | List a buyer’s postings with filters (status, search query), sorting, and pagination; can return per-status counts.                           |
-| `/buyers/{buyerId}/postings_detail/{postingId}` | GET    | Fetch full details of a specific posting owned by the buyer, including metrics, view policies, health conditions, tags, and image.            |
-| `/buyers/{buyerId}/postings_update/{postingId}` | PATCH  | Update mutable fields of a posting; array fields act as full-set replacements; supports replacing/removing image.                             |
-| `/buyers/{buyerId}/postings_delete/{postingId}` | DELETE | Soft delete a posting (`isActive=false`) so it no longer appears in listings.                                                                 |
-| `/metrics`                              | GET    | Retrieve the catalog of active metrics available for selection in postings.                                                                   |
-| `/health_conditions`                    | GET    | Retrieve the catalog of active health conditions used for eligibility in postings.                                                            |
-| `/posting_statuses`                     | GET    | Retrieve the allowed posting lifecycle statuses (e.g., DRAFT, OPEN, etc.).                                                                    |
-| `/reward_types`                         | GET    | Retrieve the catalog of available reward/compensation types.                                                                                  |
-| `/view_policies`                        | GET    | Retrieve the catalog of reusable view/usage policies buyers can attach to postings.                                                           |
-
+| `/buyers_postings/{buyerId}`                    | POST   | Create a new posting for the specified buyer, inserting core record plus metrics, view policies, optional health conditions, tags, and image. |
+| `/buyers_postings_list/{buyerId}`               | GET    | List a buyer’s postings with filters (status, search query), sorting, and pagination; can return per-status counts.                           |
+| `/buyers_postings_detail/{buyerId}/{postingId}` | GET    | Fetch full details of a specific posting owned by the buyer, including metrics, view policies, health conditions, tags, and image.            |
+| `/buyers_postings_update/{buyerId}/{postingId}` | PATCH  | Update mutable fields of a posting; array fields act as full-set replacements; supports replacing/removing image.                             |
+| `/buyers_postings_delete/{buyerId}/{postingId}` | DELETE | Soft delete a posting (`isActive=false`) so it no longer appears in listings.                                                                 |
+| `/metrics`                                      | GET    | Retrieve the catalog of active metrics available for selection in postings.                                                                   |
+| `/health_conditions`                            | GET    | Retrieve the catalog of active health conditions used for eligibility in postings.                                                            |
+| `/posting_statuses`                             | GET    | Retrieve the allowed posting lifecycle statuses (e.g., DRAFT, OPEN, etc.).                                                                    |
+| `/reward_types`                                 | GET    | Retrieve the catalog of available reward/compensation types.                                                                                  |
+| `/view_policies`                                | GET    | Retrieve the catalog of reusable view/usage policies buyers can attach to postings.                                                           |
 
 
 

@@ -33,25 +33,25 @@ The focus is on powering a fully functional marketplace browsing and filtering i
 
 | Method | Path                                   | Purpose                                                                                                         |
 | ------ | -------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| GET    | **marketplace/postings**               | Returns a public feed of all visible postings sorted by newest first.                                           |
-| GET    | **marketplace/postings/recommended**   | Returns a personalized feed of postings for the authenticated user.                                             |
-| GET    | **marketplace/postings/{postingId}**   | Returns full details of a specific posting.                                                                     |
-| GET    | **marketplace/postings/facets**        | Returns aggregated facet counts (tags, metrics, statuses) for the current filter scope.                         |
-| GET    | **marketplace/postings/status-counts** | Returns posting counts grouped by status (e.g., OPEN, PAUSED) within the current scope.                         |
-| GET    | **marketplace/search/suggest**         | Returns search suggestions based on title or tag prefix input.                                                  |
-| GET    | **marketplace/tags/trending**          | Returns trending tags based on recent posting activity.                                                         |
-| GET    | **marketplace/metrics**                | Returns the list of available metric codes and names for badges or filters.                                     |
-| GET    | **marketplace/filters**                | Returns a unified set of available filters (tags, metrics, reward types, reward ranges, durations, age ranges). |
-| GET    | **marketplace/filters/reward-types**   | Returns the list of reward types (e.g., POINTS, TOKENS, CREDITS) available for filtering.                       |
-| GET    | **marketplace/filters/reward-ranges**  | Returns suggested reward ranges for filtering (e.g., 0–200, 201–500, 501+).                                     |
-| GET    | **marketplace/filters/metrics**        | Returns metric options scoped for filtering.                                                                    |
-| GET    | **marketplace/filters/tags**           | Returns popular tags for use in the filter UI.                                                                  |
-| GET    | **marketplace/filters/durations**      | Returns standard duration buckets (e.g., 7 days, 14 days, 30 days) for filtering.                               |
-| GET    | **marketplace/filters/eligibility**    | Returns eligibility filter options (e.g., age brackets, health conditions).                                     |
+| GET    | **marketplace_postings**               | Returns a public feed of all visible postings sorted by newest first.                                           |
+| GET    | **marketplace_postings_recommended**   | Returns a personalized feed of postings for the authenticated user.                                             |
+| GET    | **marketplace_postings/{postingId}**   | Returns full details of a specific posting.                                                                     |
+| GET    | **marketplace_postings_facets**        | Returns aggregated facet counts (tags, metrics, statuses) for the current filter scope.                         |
+| GET    | **marketplace_postings_status_counts** | Returns posting counts grouped by status (e.g., OPEN, PAUSED) within the current scope.                         |
+| GET    | **marketplace_search/suggest**         | Returns search suggestions based on title or tag prefix input.                                                  |
+| GET    | **marketplace_tags/trending**          | Returns trending tags based on recent posting activity.                                                         |
+| GET    | **marketplace_metrics**                | Returns the list of available metric codes and names for badges or filters.                                     |
+| GET    | **marketplace_filters**                | Returns a unified set of available filters (tags, metrics, reward types, reward ranges, durations, age ranges). |
+| GET    | **marketplace_filters_reward_types**   | Returns the list of reward types (e.g., POINTS, TOKENS, CREDITS) available for filtering.                       |
+| GET    | **marketplace_filters_reward_ranges**  | Returns suggested reward ranges for filtering (e.g., 0–200, 201–500, 501+).                                     |
+| GET    | **marketplace_filters_metrics**        | Returns metric options scoped for filtering.                                                                    |
+| GET    | **marketplace_filters_tags**           | Returns popular tags for use in the filter UI.                                                                  |
+| GET    | **marketplace_filters_durations**      | Returns standard duration buckets (e.g., 7 days, 14 days, 30 days) for filtering.                               |
+| GET    | **marketplace_filters_eligibility**    | Returns eligibility filter options (e.g., age brackets, health conditions).                                     |
 
 ---
 
-# **Endpoint:** `GET /marketplace/postings`
+# **Endpoint:** `GET _marketplace_postings`
 
 ## Summary
 
@@ -97,25 +97,25 @@ Notes
 Basic, first page
 
 ```
-GET /marketplace/postings
+GET /marketplace_postings
 ```
 
 Specific page and size
 
 ```
-GET /marketplace/postings?page=3&pageSize=10
+GET /marketplace_postings?page=3&pageSize=10
 ```
 
 Search with metric filtering and minimum reward
 
 ```
-GET /marketplace/postings?q=hrv&metricIds=110,111&minReward=500
+GET /marketplace_postings?q=hrv&metricIds=110,111&minReward=500
 ```
 
 Tag filter with status narrowing
 
 ```
-GET /marketplace/postings?tag=sleep&statusIds=2,3
+GET /marketplace_postings?tag=sleep&statusIds=2,3
 ```
 
 Reward type filtering
@@ -127,7 +127,7 @@ GET /marketplace/postings?rewardTypeIds=1,3
 Explicit sort by open time then id
 
 ```
-GET /marketplace/postings?sort=applyOpenAt:desc,postingId:desc
+GET /marketplace_postings?sort=applyOpenAt:desc,postingId:desc
 ```
 
 ---
@@ -156,7 +156,7 @@ Only postings that pass visibility rules are returned.
 ### 1) Basic: first page with defaults
 
 ```
-GET /marketplace/postings
+GET /marketplace_postings
 ```
 
 **200 OK**
@@ -251,7 +251,7 @@ GET /marketplace/postings
 ### 2) Pagination: page 2 with custom page size
 
 ```
-GET /marketplace/postings?page=2&pageSize=2
+GET /marketplace_postings?page=2&pageSize=2
 ```
 
 **200 OK**
@@ -336,7 +336,7 @@ GET /marketplace/postings?q=hrv&metricIds=110,111&minReward=500
 ### 4) Tag filter with status narrowing
 
 ```
-GET /marketplace/postings?tag=sleep&statusIds=2,3
+GET /marketplace_postings?tag=sleep&statusIds=2,3
 ```
 
 **200 OK**
@@ -421,7 +421,7 @@ GET /marketplace/postings?rewardTypeIds=1,3
 ### 6) Explicit sort by open time
 
 ```
-GET /marketplace/postings?sort=applyOpenAt:desc,postingId:desc
+GET /marketplace_postings?sort=applyOpenAt:desc,postingId:desc
 ```
 
 **200 OK** (truncated)
@@ -456,7 +456,7 @@ GET /marketplace/postings?sort=applyOpenAt:desc,postingId:desc
 ### 7) Empty result example
 
 ```
-GET /marketplace/postings?q=unobtanium
+GET /marketplace_postings?q=unobtanium
 ```
 
 **200 OK**
@@ -475,7 +475,7 @@ GET /marketplace/postings?q=unobtanium
 ### 8) Error example: unsupported sort field
 
 ```
-GET /marketplace/postings?sort=foo:asc
+GET /marketplace_postings?sort=foo:asc
 ```
 
 **400 Bad Request**
@@ -528,7 +528,7 @@ Exception handling rules
 5. Shape rows into the list card format with identifiers only.
 6. Ensure `imageUrl` is always populated by applying a default when the posting has no image.
 
-# GET /marketplace/postings — Implementation, Logic, and SQL
+# GET /marketplace_postings — Implementation, Logic, and SQL
 
 ---
 

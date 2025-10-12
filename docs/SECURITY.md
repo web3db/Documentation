@@ -41,8 +41,8 @@ The focus is on protecting user data, choosing the right storage model, and ensu
 
 ## Consent and Access
 - Data leaves the device only after explicit consent. Phase 3 
-- No revocation or token-based sharing in Phase 1.  
-- Buyers receive access once approved and cannot be blocked afterward in this phase.  Phase 3
+- No revocation/approval or token-based sharing in Phase 1.  
+- Buyers receive access once agreed and cannot be blocked afterward in this phase.  Phase 3
 
 ---
 

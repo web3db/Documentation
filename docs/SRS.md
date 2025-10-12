@@ -16,10 +16,8 @@ Phase 1 focuses on delivering the MVP: a healthcare data marketplace where users
   Can sign up, manage profile, give consent, share data, view marketplace, track earnings, and see gamification progress.  
 
 - **Buyer:**  
-  Can sign up, create postings for data, approve user offers, and view shared data once approved.  
+  Can sign up, create postings for data, and view shared data once user agrees.  
 
-- **Admin:**  
-  Can oversee buyer postings, manage user/buyer accounts, and maintain platform records.  
 
 ---
 

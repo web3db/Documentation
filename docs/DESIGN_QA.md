@@ -109,7 +109,7 @@ Shared data will be encrypted and stored on Web3 for delivery to buyers.
 
 ## 8. User Experience
 **Q:** What is the Phase 1 user flow?  
-**A:** Login → fill profile (sex, age, BMI) → consent → see marketplace → agree to buyer requirement → buyer approves → data shared.  
+**A:** Login → fill profile (sex, age, BMI) → consent → see marketplace → agree to buyer requirement  → data shared. 
 
 **Q:** What features will the user app include in Phase 1?  
 **A:** Marketplace view, sharing page, settings, gamification (credits, badges).  

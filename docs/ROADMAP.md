@@ -32,10 +32,10 @@ Goal: Deliver the minimum viable product with a working healthcare data marketpl
 - Sharing page → users can agree to buyer requirements  
 - Settings page → basic user account controls  
 - Buyers can post requirements for data  
-- Buyers can approve user offers  
+- Buyers can see users shared data 
 - Uber-style flow: once users consent, they don’t re-enter details repeatedly  
 - Add light gamification (credits, badges)  
-- Excludes advanced features like revocation, tokenization, or buyer verification
+- Excludes advanced features like approval/revocation, tokenization, or buyer verification
 - Storage:
   - Web3 storage is the **primary model** (Already previous).    
   - Local storage feasibility will be tested as a fallback, using secure device storage.  
@@ -54,6 +54,8 @@ Goal: Add more flexibility and data entry options.
 - Improve gamification (streaks, multipliers, rewards)  
 - Privacy risk increases with manual entry, must review consent model  
 - Buyers get access through **time-limited signed links**. 
+- Buyers can approve/reject shared data.
+
 
 ---
 

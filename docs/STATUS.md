@@ -40,9 +40,11 @@ It will be updated as the team makes progress.
 
 ###  Buyer Side (Phase 1)
 - Buyers can **post requirements** for data.  
-- Users can **sign up / agree** to those requirements.  
-- Buyers can **approve user offers**.  
+- Users can **sign up / agree** to those requirements.
+- Buyer can post the requirements and edit them. 
 - Once approved, buyer gets access to that user’s data for the agreed period.  
+
+
 
 ---
 
@@ -53,8 +55,8 @@ It will be updated as the team makes progress.
 - Later phases:
   - Add **time-limited tokens** for shared data.  
   - Add **revocation features**.  
-  - Add traceability of who accessed what.  
-
+  - Add traceability of who accessed what.
+  - Buyers can **approve/reject user offers**.  
 ---
 
 ### Data & Storage

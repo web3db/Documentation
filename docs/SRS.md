@@ -41,14 +41,6 @@ Phase 1 focuses on delivering the MVP: a healthcare data marketplace where users
 | Marketplace Browse | User | Browse active buyer postings and requirements. | P1 |  | |
 | Offer to Share | User | Opt-in to a buyer posting; one-tap “Agree” based on consent. | P1 |  | |
 | Buyer Posting | Buyer | Create postings: data types, date range, basic inclusion rules. | P1 |  |
-| Approve Users | Buyer | Review user opt-ins and approve. | P1 |  | |
-| Share Package (Web3) | System | After approval, build encrypted bundle, upload to Web3 (IPFS or similar). | P1 |  | |
-| Delivery Link (time-bound) | System → Buyer | Issue signed, time-bound link to the encrypted bundle. | P1 |  | |
-| Earnings Dashboard | User | Show total earned, recent shares, pending payouts. | P1 |  | |
-| Gamification (basic) | User | Credits and badges for participation. | P1 |  | |
-| Activity Log (basic) | User, Admin | Log share events (no PII); show simple history to user; admin sees counts. | P1 |  | |
-| Admin Moderation (light) | Admin | View postings, deactivate spam/abuse, basic user/buyer lock/unlock. | P1 |  | |
-
 ---
 
 ### Phase 2 — Extended Sharing and Manual Data
@@ -63,6 +55,10 @@ Phase 1 focuses on delivering the MVP: a healthcare data marketplace where users
 | Payout Methods | User | Stripe Connect/PayPal payouts; withdraw schedule and thresholds. | P2 |  |
 | Pricing Tiers | Buyer, Admin | Simple fixed tiers per posting type and size (platform-defined). | P2 |  |
 | User Data Preview | User | See exactly which fields will be included before sharing. | P2 |  |
+| Approve/Reject Users | Buyer | Review user opt-ins and approve. | P2 |  | |
+| Share Package (Web3) | System | After approval, build encrypted bundle, upload to Web3 (IPFS or similar). | P2 |  | |
+| Gamification (basic) | User | Credits and badges for participation. | P2 |  | |
+| Activity Log (basic) | User, Admin | Log share events (no PII); show simple history to user; admin sees counts. | P2 |  | |
 
 ---
 
@@ -77,6 +73,8 @@ Phase 1 focuses on delivering the MVP: a healthcare data marketplace where users
 | Revocation | User, Admin | Revoke future access for a share; new downloads blocked. | P3 |  |
 | Traceability | Admin | View access logs per asset (non-PII), exportable audit trails. | P3 |  |
 | Adjustable Pricing | Buyer, Admin | Optional buyer bidding or negotiated price per posting. | P3 |  |
+| Delivery Link (time-bound) | System → Buyer | Issue signed, time-bound link to the encrypted bundle. | P3 |  | |
+| Earnings Dashboard | User | Show total earned, recent shares, pending payouts. | P3 |  | |
 
 ---
 
@@ -169,15 +167,17 @@ Phase 1 focuses on delivering the MVP: a healthcare data marketplace where users
 - Advanced anonymization or differential privacy.  
 - Subscriptions, commissions, or monetization logic.  
 - Complex legal and ethical safeguards.  
-- Buyers receive time-limited access links. 
+- Buyers receive time-limited access links.
+- Buyers Approve/Reject users data.
 
 ---
 
 ## 7. Assumptions
 - Users and buyers will act in good faith for Phase 1.  
 - Compliance with HIPAA/GDPR/CCPA will be explored later.  
-- Web3 storage will remain stable and accessible during Phase 1 testing.  
-
+- Web3 storage will remain stable and accessible during Phase 1 testing.
+- Users can start contributing to the posting from applying
+- In this version, users are automatically approved to share their data
 ---
 
 ## 8. Future Considerations

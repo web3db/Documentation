@@ -87,7 +87,7 @@ It will be updated as the team makes progress.
 
 ### UI / Screens (Phase 1)
 - **User**: Login & profile, consent flow, marketplace, sharing page, settings.  
-- **Buyer**: Login & verification, post requirement, approve users, view purchased/shared data.  
+- **Buyer**: Login & verification, post requirement, view purchased/shared data.  
 
 ---
 

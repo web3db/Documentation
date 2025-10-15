@@ -307,11 +307,11 @@ Composite PK
 Examples (5)
 
 [
-  { "UserId": 1001, "HealthConditionId": 205 },
-  { "UserId": 1001, "HealthConditionId": 310 },
-  { "UserId": 1002, "HealthConditionId": 205 },
-  { "UserId": 1003, "HealthConditionId": 411 },
-  { "UserId": 1005, "HealthConditionId": 205 }
+  { "UserHealthConditionId" : 1, "UserId": 1001, "HealthConditionId": 205 },
+  { "UserHealthConditionId" : 2, "UserId": 1001, "HealthConditionId": 310 },
+  { "UserHealthConditionId" : 3, "UserId": 1002, "HealthConditionId": 205 },
+  { "UserHealthConditionId" : 4, "UserId": 1003, "HealthConditionId": 411 },
+  { "UserHealthConditionId" : 5, "UserId": 1005, "HealthConditionId": 205 }
 ]
 
 

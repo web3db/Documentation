@@ -296,6 +296,8 @@ TRN_UserHealthCondition
 Purpose: Link a user to one or more health conditions, with optional notes. (This is the only TRN table in user ops per your setup.)
 Fields
 
+UserHealthConditionId  PK
+
 UserId (FK → MST_User.UserId)
 
 HealthConditionId (FK → MST_HealthCondition.HealthConditionId)

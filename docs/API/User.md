@@ -1141,8 +1141,10 @@ This file documents the **User** APIs, the **tables** they touch, and **backend 
 
 | Field               | Type     | Notes                                     |
 | ------------------- | -------- | ----------------------------------------- |
+| `UserHealthConditionId` | int (PK) |  |
 | `UserId`            | int (FK) | → `MST_User.UserId`                       |
 | `HealthConditionId` | int (FK) | → `MST_HealthCondition.HealthConditionId` |
+
 
 
 Primary Key: (UserId, HealthConditionId)
@@ -1152,11 +1154,11 @@ Primary Key: (UserId, HealthConditionId)
 ```json
 
 [
-  { "UserId": 1001, "HealthConditionId": 205 },
-  { "UserId": 1001, "HealthConditionId": 310 },
-  { "UserId": 1002, "HealthConditionId": 205 },
-  { "UserId": 1003, "HealthConditionId": 411 },
-  { "UserId": 1005, "HealthConditionId": 205 }
+  { "UserHealthConditionId" : 1, "UserId": 1001, "HealthConditionId": 205 },
+  { "UserHealthConditionId" : 2, "UserId": 1001, "HealthConditionId": 310 },
+  { "UserHealthConditionId" : 3, "UserId": 1002, "HealthConditionId": 205 },
+  { "UserHealthConditionId" : 4, "UserId": 1003, "HealthConditionId": 411 },
+  { "UserHealthConditionId" : 5, "UserId": 1005, "HealthConditionId": 205 }
 ]
 ```
 ## How They Connect

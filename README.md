@@ -1,38 +1,89 @@
-# Web3 Health (Documentation Repo)
+# Web3 Health — Documentation Repository
 
-This repo is for all the **planning and notes** around the Web3 project at UGA. 
+This repository contains **planning, design, and technical documentation** for the Web3 Health project at the University of Georgia (UGA).
 
-The idea is simple: build an app where people can **sell their health data safely**, with privacy built in, and then grow it later into a bigger data marketplace.  .  
+The project explores building an application where individuals can **share or monetize health data in a privacy-preserving way**, with user-controlled permissions and a long-term goal of supporting a decentralized health data marketplace.
 
----
-
-## 🎯 Why this repo exists
-- Centralized and accessable for **documentation and design discussions.**  
-- To keep all our **ideas, notes, and discussions** in one place.  
-- To write down the **initial plan, features, and open questions**.  
-- To help us stay on the same page as the project grows and easy coordination.  
+This repo is **documentation-focused** and intentionally separated from production application code.
 
 ---
 
-## Working name
-**Web3 Health**  
-> This is just our **starting name**. We might rename the project later, but for now it works and shows the focus on health + Web3.  
+## 🎯 Why this repository exists
+
+- To maintain a **single, centralized source of truth** for project documentation.
+- To capture **design decisions, trade-offs, and open questions** as the system evolves.
+- To document **API behavior, database structure, and security considerations** clearly.
+- To support **collaboration and continuity** across researchers, developers, and stakeholders.
+- To provide **traceable references** between implementation logic and documentation.
 
 ---
 
+## 🧭 Working name
 
-## 📂 Repo structure
+**Web3 Health**
+
+> This is a working title reflecting the current focus on health data and decentralized systems.  
+> The name may change as the project scope evolves.
+
+---
+
+## 📂 Repository structure
+
 ```
-│── README.md # This file
-│── docs/
-│ ├── DESIGN_QA.md # Questions + answers, TBDs
-│ ├── ROADMAP.md # Multi-phase roadmap
-│ ├── PRIVACY.md # Privacy and compliance notes
-│ ├── SRS.md  # Software Requirements Specification – detailed functional & non-functional requirements, with priorities and status
-│ ├── STATUS.md  # Current status: where we are now,last discussion notes
-│ ├── SECURITY.md # Storage/encryption/Web3 thoughts
-│ ├── ARCHITECTURE.md # Big-picture design (users, buyers, admins)
-│ ├── DATABASE.md # Database schema, entity list, security considerations
+
+    Documentation
+    ├── docs/
+    │   ├── API/
+    │   │   ├── code/
+    │   │   │   ├── buyer_get_posting_shares.ts
+    │   │   │   ├── share_get_session_snapshot.ts
+    │   │   │   ├── user_active-share-sessions.ts
+    │   │   │   ├── user_cancel_share_session.ts
+    │   │   │   ├── user_get_session_by_posting.ts
+    │   │   │   ├── user_start_share_session.ts
+    │   │   │   └── user_submit_segment.ts
+    │   │   ├── API.md
+    │   │   ├── Decentralization.md
+    │   │   ├── Marketplace.md
+    │   │   ├── Posting.md
+    │   │   └── User.md
+    │   ├── ARCHITECTURE.md
+    │   ├── DATABASE.md
+    │   ├── DESIGN_QA.md
+    │   ├── PRIVACY.md
+    │   ├── ROADMAP.md
+    │   ├── SECURITY.md
+    │   ├── SRS.md
+    │   └── STATUS.md
+    ├── index.html
+    └── README.md
+
 ```
+
+---
+
+## 📌 Notes on API documentation
+
+- The `docs/API/code/` directory contains **production Edge Function implementations** used by the current backend.
+- These files serve as **authoritative references** for request/response behavior, validation rules, and business logic.
+- Older or alternative implementations are intentionally kept for **traceability and comparison**.
+- A **lightly tested FastAPI implementation** exists in the backend repository under the `api-refactoring` branch and can be used for:
+  - replication,
+  - experimentation,
+  - or conversion to other frameworks.
+
+Repository link:  
+https://github.com/web3db/web3_health_uga_backend/tree/api-refactoring
+
+---
+
+## 📄 What this repo does *not* contain
+
+- No mobile or web client source code
+- No production secrets or credentials
+- No deployment scripts or infrastructure configuration
+
+Those live in separate repositories by design.
+
 ---
 
